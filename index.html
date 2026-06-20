@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#D81F26" />
+  <title>টালিখাতা কুইজ ক্যাম্পেইন — জিতে নিন ১০,০০০ টাকা</title>
+  <meta name="description" content="টালিখাতা কুইজে অংশগ্রহণ করে জিতে নিন ক্যাশ ১০,০০০ টাকা পুরস্কার! টালিখাতা রেফার করুন ন্যূনতম ১০ জনকে।" />
+
+  <!-- Open Graph: this is what renders as the WhatsApp share card (logo + short description).
+       og:image must be an ABSOLUTE, publicly reachable URL for WhatsApp to show the logo —
+       it cannot be set by JavaScript (WhatsApp's crawler does not run JS).
+       Set to the live GitHub Pages URL (case-sensitive path). -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="টালিখাতা" />
+  <meta property="og:title" content="জিতে নিন ক্যাশ ১০,০০০ টাকা পুরস্কার!" />
+  <meta property="og:description" content="টালিখাতা রেফার করুন ন্যূনতম ১০ জনকে। এ সুযোগ সীমিত সময়ের জন্য।" />
+  <meta property="og:url" content="https://kaaptai-stack.github.io/TK-Quiz/" />
+  <meta property="og:image" content="https://kaaptai-stack.github.io/TK-Quiz/assets/tk-logo-vertical.png" />
+  <meta property="og:image:width" content="1080" />
+  <meta property="og:image:height" content="1080" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link rel="icon" href="assets/tk-logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app" id="app">
+
+    <!-- ================= SCREEN: INTRO (Slide 4) ================= -->
+    <section class="screen active" data-screen="intro">
+      <div class="screen-body intro">
+        <h1 class="hl">প্রতিযোগিতায় অংশগ্রহণ করে জিতে নিন</h1>
+        <div class="prize">
+          <span class="prize-amount">১০,০০০</span>
+          <span class="prize-cash">টাকা ক্যাশ <em>১০ জন বিজয়ী</em></span>
+        </div>
+
+        <div class="terms">
+          <h3>শর্তাবলী ও নিয়মাবলী</h3>
+          <ul>
+            <li>সকল ধাপ সফলভাবে সম্পন্ন করতে হবে।</li>
+            <li>সবচেয়ে দ্রুত যারা সফলভাবে সম্পন্ন করতে পারবেন তাদের মধ্য থেকে প্রথম ১০ জন বিজয়ী হিসেবে গণ্য হবে।</li>
+            <li>প্রথম ৩ দিনের মধ্যে ৩ জন বিজয়ী ও ৩০ জুলাই-এর মধ্যে বাকি ৭ জন বিজয়ী ঘোষণা করা হবে।</li>
+            <li>সবচেয়ে বেশি টালিখাতা ব্যবহারকারী রেফার করতে পারলে জেতার সম্ভাবনা সবচেয়ে বেশি।</li>
+            <li>পুরস্কার ব্যাংক একাউন্ট বা মোবাইল নাম্বারের মাধ্যমে দেওয়া হবে।</li>
+            <li>পুরস্কার ঘোষণা ও বিতরণ টালিখাতার অফিসিয়াল ফেসবুক পেজের মাধ্যমে জানানো হবে।</li>
+          </ul>
+        </div>
+
+        <button class="btn btn-primary" data-action="start">আমি আগ্রহী</button>
+        <button class="btn-text" data-action="goto-myinfo">আমার তথ্য দেখুন</button>
+      </div>
+    </section>
+
+    <!-- ================= SCREEN: MOBILE (Slide 5) ================= -->
+    <section class="screen" data-screen="mobile">
+      <div class="screen-body center">
+        <label class="field-label" for="mobileInput">আপনার মোবাইল নম্বর</label>
+        <div class="phone-field">
+          <span class="phone-prefix">+88</span>
+          <input id="mobileInput" type="tel" inputmode="numeric" maxlength="11"
+                 placeholder="01XXXXXXXXX" autocomplete="tel" />
+        </div>
+        <p class="field-help">বিজয়ী হলে এই নম্বরে আপনার সাথে যোগাযোগ করা হবে।</p>
+        <p class="field-error" id="mobileError" hidden>সঠিক ১১ সংখ্যার মোবাইল নম্বর দিন (যেমন 01XXXXXXXXX)।</p>
+        <button class="btn btn-primary btn-narrow mt-auto" data-action="submit-mobile">নিশ্চিত</button>
+      </div>
+    </section>
+
+    <!-- ================= SCREEN: PROFESSION (Slide 6) ================= -->
+    <section class="screen" data-screen="profession">
+      <div class="screen-body">
+        <h2 class="hl center-text">আপনার পেশা বাছাই করুন</h2>
+        <div class="profession-grid" id="professionGrid"><!-- filled by JS --></div>
+      </div>
+    </section>
+
+    <!-- ================= SCREEN: QUIZ (Slides 7-10) ================= -->
+    <section class="screen" data-screen="quiz">
+      <div class="screen-body quiz">
+        <div class="quiz-count" id="quizCount"></div>
+        <h2 class="quiz-question hl" id="quizQuestion"></h2>
+        <p class="quiz-hint" id="quizHint" hidden>একাধিক উত্তর বাছাই করতে পারবেন।</p>
+        <div class="quiz-options" id="quizOptions"><!-- filled by JS --></div>
+        <button class="btn btn-primary btn-narrow" id="quizConfirmBtn" data-action="quiz-confirm" hidden>নিশ্চিত করুন</button>
+        <div class="quiz-bg" id="quizBg" aria-hidden="true"></div>
+      </div>
+    </section>
+
+    <!-- ================= SCREEN: WRONG ANSWER (Slide 11) ================= -->
+    <section class="screen" data-screen="wrong">
+      <div class="screen-body center">
+        <div class="big-icon warn">!</div>
+        <h2 class="hl center-text">উত্তর ভুল হয়েছে।<br/>আবার চেষ্টা করুন।</h2>
+        <button class="btn btn-primary mt-auto" data-action="retry-quiz">আবার চেষ্টা করি</button>
+      </div>
+    </section>
+
+    <!-- ================= SCREEN: CORRECT / SHARE (Slide 12) ================= -->
+    <section class="screen" data-screen="share">
+      <div class="screen-body center">
+        <div class="big-icon ok">✓</div>
+        <p class="lead">আপনার উত্তর সঠিক হয়েছে।</p>
+        <div class="prize small">
+          <span class="prize-line">আপনি জিততে পারবেন</span>
+          <span class="prize-amount">১০,০০০</span>
+          <span class="prize-cash">টাকা ক্যাশ</span>
+        </div>
+        <p class="lead">আপনার <b>১০ জন</b> বন্ধুকে WhatsApp-এ শেয়ার করুন।</p>
+
+        <div class="share-icons">
+          <button class="share-icon big" data-share="whatsapp" aria-label="WhatsApp">
+            <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#25D366"/><path fill="#fff" d="M16 7.3a8.6 8.6 0 0 0-7.3 13.1L7.3 24.7l4.4-1.4A8.6 8.6 0 1 0 16 7.3zm0 1.6a7 7 0 0 1 5.9 10.7l-.2.3.6 2.2-2.3-.6-.3.2A7 7 0 1 1 16 8.9zm-3.3 3.2c-.2 0-.4 0-.6.3-.2.2-.8.8-.8 1.9 0 1.1.8 2.2.9 2.4.1.2 1.6 2.5 4 3.4 2 .8 2.4.6 2.8.6.4 0 1.4-.6 1.6-1.1.2-.6.2-1 .1-1.1l-.7-.4c-.4-.2-1.4-.7-1.6-.8-.2 0-.4-.1-.5.2l-.7.8c-.1.2-.3.2-.5.1-.3-.1-1.1-.4-2-1.2-.7-.6-1.2-1.4-1.4-1.7-.1-.2 0-.4.1-.5l.4-.5.3-.4v-.4c0-.1-.5-1.3-.7-1.8-.2-.4-.4-.4-.5-.4z"/></svg>
+            <span>WhatsApp-এ শেয়ার করুন</span>
+          </button>
+        </div>
+
+        <button class="btn btn-primary btn-narrow mt-auto" id="shareNextBtn" data-action="share-next" disabled>পরবর্তী</button>
+        <p class="field-help" id="shareHint">পরবর্তী ধাপে যেতে একবার WhatsApp-এ শেয়ার করুন।</p>
+      </div>
+    </section>
+
+    <!-- ================= SCREEN: DOWNLOAD (Slide 13) ================= -->
+    <section class="screen" data-screen="download">
+      <div class="screen-body center">
+        <p class="lead strong">আপনি সফলভাবে পৌঁছে গেছেন সর্বশেষ ধাপে।</p>
+        <img class="app-shot" src="assets/app-preview.png" alt="টালিখাতা অ্যাপ" onerror="this.style.display='none'"/>
+        <p class="lead">টালিখাতা অ্যাপটি ডাউনলোড ও রেজিস্ট্রেশন করে আপনার অংশগ্রহণ সম্পন্ন করুন।</p>
+        <a class="btn btn-primary" id="downloadBtn" data-action="download" target="_blank" rel="noopener">ডাউনলোড</a>
+        <button class="btn-text" data-action="confirm-installed">ডাউনলোড ও রেজিস্ট্রেশন সম্পন্ন করেছি</button>
+      </div>
+    </section>
+
+    <!-- ================= SCREEN: FINAL / FACEBOOK (Slide 14) ================= -->
+    <section class="screen" data-screen="final">
+      <div class="screen-body center">
+        <img class="hero-logo" src="assets/tk-logo-vertical.png" alt="টালিখাতা" />
+        <h1 class="hl congrats">অভিনন্দন!</h1>
+        <p class="lead">আপনি সফলভাবে সকল ধাপ সম্পন্ন করেছেন।<br/>আগামী ৩০ জুলাইয়ের মধ্যে বিজয়ী ঘোষণা করা হবে।</p>
+        <p class="lead">জেতার সম্ভাবনা বাড়াতে আরও বেশি বন্ধুকে WhatsApp-এ শেয়ার করুন।</p>
+
+        <button class="btn btn-wa" data-action="reshare-whatsapp">WhatsApp-এ আবার শেয়ার করুন</button>
+        <button class="btn-text" data-action="goto-myinfo">আমার রেফারেল দেখুন</button>
+      </div>
+    </section>
+
+    <!-- ================= SCREEN: ALREADY PARTICIPATED ================= -->
+    <section class="screen" data-screen="already">
+      <div class="screen-body center">
+        <div class="big-icon ok">✓</div>
+        <h2 class="hl center-text">আপনি ইতিমধ্যে অংশগ্রহণ করেছেন।</h2>
+        <p class="lead">একজন ব্যক্তি একবারই অংশগ্রহণ করতে পারবেন। তবে জেতার সম্ভাবনা বাড়াতে আপনার সব বন্ধুর সাথে শেয়ার করুন — যত বেশি টালিখাতা ব্যবহারকারী রেফার করবেন, জেতার সুযোগ তত বেশি।</p>
+
+        <div class="stat-pill">
+          <span class="stat-num" id="alreadyRefCount">০</span>
+          <span class="stat-cap">জন টালিখাতা ব্যবহারকারী রেফার করেছেন</span>
+        </div>
+
+        <button class="btn btn-wa" data-action="reshare-whatsapp">WhatsApp-এ শেয়ার করুন</button>
+        <button class="btn-text" data-action="goto-home">হোমে ফিরে যান</button>
+      </div>
+    </section>
+
+    <!-- ================= SCREEN: MY INFO — mobile entry ================= -->
+    <section class="screen" data-screen="myinfo">
+      <div class="screen-body center">
+        <h2 class="hl center-text">আমার তথ্য</h2>
+        <p class="lead">আপনি কতজন টালিখাতা ব্যবহারকারী রেফার করেছেন তা দেখতে আপনার মোবাইল নম্বর দিন।</p>
+        <label class="field-label" for="myinfoMobile">আপনার মোবাইল নম্বর</label>
+        <div class="phone-field">
+          <span class="phone-prefix">+88</span>
+          <input id="myinfoMobile" type="tel" inputmode="numeric" maxlength="11" placeholder="01XXXXXXXXX" />
+        </div>
+        <p class="field-error" id="myinfoError" hidden></p>
+        <button class="btn btn-primary mt-auto" data-action="send-otp">OTP পাঠান</button>
+        <button class="btn-text" data-action="goto-home">ফিরে যান</button>
+      </div>
+    </section>
+
+    <!-- ================= SCREEN: MY INFO — OTP ================= -->
+    <section class="screen" data-screen="otp">
+      <div class="screen-body center">
+        <h2 class="hl center-text">OTP যাচাই</h2>
+        <p class="lead"><span id="otpMobileLabel"></span> নম্বরে পাঠানো ৬ সংখ্যার কোডটি দিন।</p>
+        <input id="otpInput" class="otp-input" type="tel" inputmode="numeric" maxlength="6" placeholder="------" />
+        <p class="field-error" id="otpError" hidden>ভুল OTP। আবার চেষ্টা করুন।</p>
+        <p class="demo-note" id="otpDemoNote"></p>
+        <button class="btn btn-primary" data-action="verify-otp">যাচাই করুন</button>
+        <button class="btn-text" data-action="goto-myinfo">নম্বর পরিবর্তন করুন</button>
+      </div>
+    </section>
+
+    <!-- ================= SCREEN: MY INFO — RESULT ================= -->
+    <section class="screen" data-screen="myresult">
+      <div class="screen-body center">
+        <h2 class="hl center-text">আপনার রেফারেল</h2>
+        <div class="stat-pill big">
+          <span class="stat-num" id="myRefCount">০</span>
+          <span class="stat-cap">জন টালিখাতা ব্যবহারকারী আপনি রেফার করেছেন</span>
+        </div>
+        <p class="lead" id="myRankLine"></p>
+        <p class="lead">আরও বেশি রেফার করে জেতার সুযোগ বাড়ান!</p>
+        <button class="btn btn-wa" data-action="reshare-whatsapp">WhatsApp-এ শেয়ার করুন</button>
+        <button class="btn-text" data-action="goto-home">হোমে ফিরে যান</button>
+      </div>
+    </section>
+
+    <!-- ================= PERSISTENT FOOTER ================= -->
+    <footer class="app-footer">
+      <div class="progress" id="progressWrap">
+        <div class="progress-bar"><span id="progressBar"></span></div>
+        <div class="progress-pct" id="progressPct">০%</div>
+      </div>
+      <img class="footer-logo" src="assets/tk-logo-horizontal.png" alt="টালিখাতা" />
+    </footer>
+  </div>
+
+  <!-- toast -->
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
