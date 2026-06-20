@@ -1,0 +1,5 @@
+# Local Claude Code preview config (not needed for the public site)
+.claude/
+
+# Source brief — not part of the published site
+*.pptx
