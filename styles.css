@@ -238,6 +238,11 @@ h2.hl { font-size: 24px; margin: 6px 0 16px; }
   min-height: 64px;
 }
 .prof-btn:active { transform: scale(.96); background: #FCDDE9; }
+.prof-btn.selected {
+  background: linear-gradient(180deg, var(--tk-red) 0%, var(--tk-red-dark) 100%);
+  color: #fff;
+  border-color: var(--tk-gold);
+}
 
 /* ---------- quiz ---------- */
 .quiz { position: relative; }
@@ -250,7 +255,13 @@ h2.hl { font-size: 24px; margin: 6px 0 16px; }
   z-index: 0;
   pointer-events: none;
 }
-.quiz-count, .quiz-question, .quiz-options, .quiz-hint, #quizConfirmBtn { position: relative; z-index: 1; }
+.quiz-top, .quiz-question, .quiz-options, .quiz-hint, #quizConfirmBtn { position: relative; z-index: 1; }
+.quiz-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.quiz-count { font-size: 14px; font-weight: 600; color: var(--tk-muted); }
+.quiz-timer {
+  font-size: 15px; font-weight: 700; color: var(--tk-red);
+  background: #fff; border: 1.5px solid var(--tk-red); border-radius: 30px; padding: 4px 12px;
+}
 .quiz-hint { text-align: center; font-size: 14px; font-weight: 600; color: var(--tk-muted); margin: -14px 0 14px; }
 .quiz-count {
   text-align: center;
@@ -412,6 +423,83 @@ h2.hl { font-size: 24px; margin: 6px 0 16px; }
 
 /* hide footer progress on info/otp/result screens — handled via JS adding class */
 .app.hide-progress .progress { visibility: hidden; }
+
+/* ---------- step counter (top-right) ---------- */
+.step-counter {
+  position: absolute; top: 10px; right: 12px; z-index: 30;
+  background: var(--tk-red); color: #fff;
+  font-size: 13px; font-weight: 700;
+  padding: 4px 11px; border-radius: 30px;
+  box-shadow: 0 2px 8px rgba(168,20,26,.3);
+}
+
+/* ---------- intro creative + terms ---------- */
+.hero-creative { width: 100%; max-width: 380px; border-radius: 14px; margin: 4px auto 14px; display: block; }
+.intro-lead { font-size: 15.5px; line-height: 1.55; color: var(--tk-ink); text-align: center; margin: 0 0 16px; }
+.terms-check {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: rgba(255,255,255,.6); border: 1px solid rgba(216,31,38,.18);
+  border-radius: 12px; padding: 12px 14px; font-size: 15px; line-height: 1.5; cursor: pointer;
+}
+.terms-check input { width: 20px; height: 20px; margin-top: 1px; accent-color: var(--tk-red); flex-shrink: 0; }
+.terms-check a { color: var(--tk-red); font-weight: 700; }
+
+/* ---------- terms modal ---------- */
+.modal {
+  position: fixed; inset: 0; z-index: 60;
+  background: rgba(74,21,24,.55); display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.modal-box {
+  background: #fff; border-radius: 16px; padding: 20px; max-width: 420px; width: 100%;
+  max-height: 80vh; overflow-y: auto; box-shadow: 0 12px 40px rgba(0,0,0,.3);
+}
+.modal-box h3 { color: var(--tk-red); text-align: center; margin: 0 0 12px; }
+.modal-box ul { padding-left: 18px; margin: 0 0 16px; }
+.modal-box li { font-size: 14px; line-height: 1.55; margin-bottom: 8px; }
+
+/* ---------- conditions (correct screen) ---------- */
+.conditions { width: 100%; margin: 14px 0; display: flex; flex-direction: column; gap: 12px; }
+.cond-item {
+  display: flex; align-items: center; gap: 12px; text-align: left;
+  background: rgba(255,255,255,.7); border: 1px solid rgba(216,31,38,.18);
+  border-radius: 12px; padding: 12px 14px; font-size: 15px; font-weight: 600; line-height: 1.4;
+}
+.cond-box {
+  width: 26px; height: 26px; flex-shrink: 0; border-radius: 7px;
+  border: 2px solid var(--tk-red); display: grid; place-items: center;
+  color: #fff; font-weight: 700; font-size: 16px;
+}
+.cond-item.done .cond-box { background: #25a244; border-color: #25a244; }
+.cond-item.done { border-color: #25a244; }
+
+/* ---------- download card ---------- */
+.download-card {
+  display: flex; align-items: center; gap: 14px; width: 100%;
+  background: #fff; border: 2px solid var(--tk-red); border-radius: 14px;
+  padding: 14px 16px; margin: 8px 0; text-decoration: none; box-shadow: var(--shadow);
+}
+.download-card:active { transform: scale(.98); }
+.dl-icon { width: 52px; height: 52px; border-radius: 12px; }
+.dl-store { display: flex; flex-direction: column; text-align: left; }
+.dl-store small { font-size: 11px; color: var(--tk-muted); letter-spacing: .5px; }
+.dl-store b { font-size: 17px; color: var(--tk-red); }
+
+/* ---------- repeat stats card ---------- */
+.stat-card {
+  width: 100%; background: #fff; border: 2px solid var(--tk-gold);
+  border-radius: 16px; padding: 16px 18px; margin: 14px 0; box-shadow: var(--shadow); text-align: left;
+}
+.stat-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin: 6px 0; }
+.stat-label { font-size: 14px; color: var(--tk-ink); font-weight: 600; }
+.stat-value { font-size: 22px; font-weight: 700; color: var(--tk-red); white-space: nowrap; }
+.stat-value.best { color: #25a244; }
+.stat-sub { font-size: 12px; color: var(--tk-muted); margin: -2px 0 8px; }
+.stat-card hr { border: none; border-top: 1px solid #f0d6dc; margin: 8px 0; }
+.reminder {
+  font-size: 12px; line-height: 1.5; color: var(--tk-muted);
+  background: rgba(253,213,23,.22); border-radius: 10px; padding: 9px 12px; margin: 6px 0 4px;
+}
 
 @media (max-width: 360px) {
   h1.hl { font-size: 23px; }
