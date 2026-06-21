@@ -70,13 +70,14 @@
         <h2 class="hl center-text">আপনি ইতিমধ্যে অংশগ্রহণ করেছেন।</h2>
 
         <div class="stat-card">
+          <div class="stat-title">আপনার সময়</div>
           <div class="stat-row">
-            <span class="stat-label">সর্বশেষ সময়</span>
+            <span class="stat-label">সর্বশেষ</span>
             <span class="stat-value" id="rpLastTime">—</span>
           </div>
           <div class="stat-sub" id="rpLastDate"></div>
           <div class="stat-row">
-            <span class="stat-label">সর্বনিম্ন (সেরা) সময়</span>
+            <span class="stat-label">সেরা</span>
             <span class="stat-value best" id="rpBestTime">—</span>
           </div>
           <div class="stat-sub" id="rpBestDate"></div>
@@ -88,7 +89,7 @@
         </div>
 
         <p class="lead" id="rpRegStatus"></p>
-        <a class="btn btn-primary btn-narrow" id="rpDownloadBtn" data-action="download" target="_blank" rel="noopener" hidden>ডাউনলোড</a>
+        <a class="dl-link" id="rpDownloadBtn" data-action="download" target="_blank" rel="noopener" hidden>Download</a>
 
         <p class="reminder" id="rpReminder">
           বিজয়ী হতে কমপক্ষে <b>৩ জনকে</b> রেফারে টালিখাতা ইনস্টল করাতে হবে। সবচেয়ে বেশি রেফারেল ইনস্টল ও সবচেয়ে কম সময়ের রেকর্ডধারীরাই বিজয়ী হবেন।
@@ -115,7 +116,7 @@
           <span class="quiz-count" id="quizCount"></span>
           <span class="quiz-timer" id="quizTimer">⏱ ০:০০</span>
         </div>
-        <h2 class="quiz-question hl" id="quizQuestion"></h2>
+        <h2 class="quiz-question" id="quizQuestion"></h2>
         <p class="quiz-hint" id="quizHint" hidden>একাধিক উত্তর বাছাই করতে পারবেন।</p>
         <div class="quiz-options" id="quizOptions"><!-- filled by JS --></div>
         <button class="btn btn-primary btn-narrow" id="quizConfirmBtn" data-action="quiz-confirm" hidden>নিশ্চিত করুন</button>
