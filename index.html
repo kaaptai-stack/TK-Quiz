@@ -24,39 +24,31 @@
   <link rel="icon" href="assets/tk-logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="app" id="app">
 
-    <!-- ================= SCREEN: INTRO (Slide 4) ================= -->
+    <!-- step counter (top-right) -->
+    <div class="step-counter" id="stepCounter" hidden></div>
+
+    <!-- ================= SCREEN 1: INTRO ================= -->
     <section class="screen active" data-screen="intro">
       <div class="screen-body intro">
-        <h1 class="hl">প্রতিযোগিতায় অংশগ্রহণ করে জিতে নিন</h1>
-        <div class="prize">
-          <span class="prize-amount">১০,০০০</span>
-          <span class="prize-cash">টাকা ক্যাশ <em>১০ জন বিজয়ী</em></span>
-        </div>
+        <img class="hero-creative" src="assets/hero-creative.png" alt="জিতে নিন ১০,০০০ টাকা ক্যাশ — ১০ জন বিজয়ী" />
+        <p class="intro-lead">কুইজের সব প্রশ্নের সঠিক উত্তর দিন আর টালিখাতা রেফার করে জিতে নিন আকর্ষণীয় পুরস্কার। এ সুযোগ সীমিত সময়ের জন্য।</p>
 
-        <div class="terms">
-          <h3>শর্তাবলী ও নিয়মাবলী</h3>
-          <ul>
-            <li>সকল ধাপ সফলভাবে সম্পন্ন করতে হবে।</li>
-            <li>সবচেয়ে দ্রুত যারা সফলভাবে সম্পন্ন করতে পারবেন তাদের মধ্য থেকে প্রথম ১০ জন বিজয়ী হিসেবে গণ্য হবে।</li>
-            <li>প্রথম ৩ দিনের মধ্যে ৩ জন বিজয়ী ও ৩০ জুলাই-এর মধ্যে বাকি ৭ জন বিজয়ী ঘোষণা করা হবে।</li>
-            <li>সবচেয়ে বেশি টালিখাতা ব্যবহারকারী রেফার করতে পারলে জেতার সম্ভাবনা সবচেয়ে বেশি।</li>
-            <li>পুরস্কার ব্যাংক একাউন্ট বা মোবাইল নাম্বারের মাধ্যমে দেওয়া হবে।</li>
-            <li>পুরস্কার ঘোষণা ও বিতরণ টালিখাতার অফিসিয়াল ফেসবুক পেজের মাধ্যমে জানানো হবে।</li>
-          </ul>
-        </div>
+        <label class="terms-check">
+          <input type="checkbox" id="termsCheck" />
+          <span>আমি <a href="#" data-action="open-terms">শর্তাবলী ও নিয়মাবলী</a> পড়েছি ও সম্মত আছি।</span>
+        </label>
 
-        <button class="btn btn-primary" data-action="start">আমি আগ্রহী</button>
-        <button class="btn-text" data-action="goto-myinfo">আমার তথ্য দেখুন</button>
+        <button class="btn btn-primary mt-auto" id="startBtn" data-action="start" disabled>আমি আগ্রহী</button>
       </div>
     </section>
 
-    <!-- ================= SCREEN: MOBILE (Slide 5) ================= -->
+    <!-- ================= SCREEN 2: MOBILE ================= -->
     <section class="screen" data-screen="mobile">
       <div class="screen-body center">
         <label class="field-label" for="mobileInput">আপনার মোবাইল নম্বর</label>
@@ -71,19 +63,60 @@
       </div>
     </section>
 
-    <!-- ================= SCREEN: PROFESSION (Slide 6) ================= -->
+    <!-- ================= REPEAT PARTICIPANT (already participated) ================= -->
+    <section class="screen" data-screen="repeat">
+      <div class="screen-body center">
+        <div class="big-icon ok">✓</div>
+        <h2 class="hl center-text">আপনি ইতিমধ্যে অংশগ্রহণ করেছেন।</h2>
+
+        <div class="stat-card">
+          <div class="stat-title">আপনার সময়</div>
+          <div class="stat-row">
+            <span class="stat-label">সর্বশেষ</span>
+            <span class="stat-value" id="rpLastTime">—</span>
+          </div>
+          <div class="stat-sub" id="rpLastDate"></div>
+          <div class="stat-row">
+            <span class="stat-label">সেরা</span>
+            <span class="stat-value best" id="rpBestTime">—</span>
+          </div>
+          <div class="stat-sub" id="rpBestDate"></div>
+          <hr/>
+          <div class="stat-row">
+            <span class="stat-label">রেফারে টালিখাতা ইনস্টল ও রেজিস্ট্রেশন</span>
+            <span class="stat-value" id="rpReferrals">০</span>
+          </div>
+        </div>
+
+        <p class="lead" id="rpRegStatus"></p>
+        <a class="dl-link" id="rpDownloadBtn" data-action="download" target="_blank" rel="noopener" hidden>Download</a>
+
+        <p class="reminder" id="rpReminder">
+          বিজয়ী হতে কমপক্ষে <b>৩ জনকে</b> রেফারে টালিখাতা ইনস্টল করাতে হবে। সবচেয়ে বেশি রেফারেল ইনস্টল ও সবচেয়ে কম সময়ের রেকর্ডধারীরাই বিজয়ী হবেন।
+        </p>
+
+        <button class="btn btn-primary btn-narrow mt-auto" data-action="play-again">আবার অংশগ্রহণ করুন</button>
+        <button class="btn-text" data-action="goto-home">হোমে ফিরে যান</button>
+      </div>
+    </section>
+
+    <!-- ================= SCREEN 3: PROFESSION ================= -->
     <section class="screen" data-screen="profession">
       <div class="screen-body">
         <h2 class="hl center-text">আপনার পেশা বাছাই করুন</h2>
         <div class="profession-grid" id="professionGrid"><!-- filled by JS --></div>
+        <button class="btn btn-primary btn-narrow mt-auto" id="professionNextBtn" data-action="profession-next" disabled>পরবর্তী</button>
       </div>
     </section>
 
-    <!-- ================= SCREEN: QUIZ (Slides 7-10) ================= -->
+    <!-- ================= SCREENS 4-8: QUIZ ================= -->
     <section class="screen" data-screen="quiz">
       <div class="screen-body quiz">
-        <div class="quiz-count" id="quizCount"></div>
-        <h2 class="quiz-question hl" id="quizQuestion"></h2>
+        <div class="quiz-top">
+          <span class="quiz-count" id="quizCount"></span>
+          <span class="quiz-timer" id="quizTimer">⏱ ০:০০</span>
+        </div>
+        <h2 class="quiz-question" id="quizQuestion"></h2>
         <p class="quiz-hint" id="quizHint" hidden>একাধিক উত্তর বাছাই করতে পারবেন।</p>
         <div class="quiz-options" id="quizOptions"><!-- filled by JS --></div>
         <button class="btn btn-primary btn-narrow" id="quizConfirmBtn" data-action="quiz-confirm" hidden>নিশ্চিত করুন</button>
@@ -91,26 +124,34 @@
       </div>
     </section>
 
-    <!-- ================= SCREEN: WRONG ANSWER (Slide 11) ================= -->
+    <!-- ================= WRONG ANSWER ================= -->
     <section class="screen" data-screen="wrong">
       <div class="screen-body center">
         <div class="big-icon warn">!</div>
         <h2 class="hl center-text">উত্তর ভুল হয়েছে।<br/>আবার চেষ্টা করুন।</h2>
-        <button class="btn btn-primary mt-auto" data-action="retry-quiz">আবার চেষ্টা করি</button>
+        <button class="btn btn-primary btn-narrow mt-auto" data-action="retry-quiz">আবার চেষ্টা করি</button>
       </div>
     </section>
 
-    <!-- ================= SCREEN: CORRECT / SHARE (Slide 12) ================= -->
-    <section class="screen" data-screen="share">
+    <!-- ================= SCREEN 9: CORRECT + CONDITIONS + SHARE ================= -->
+    <section class="screen" data-screen="correct">
       <div class="screen-body center">
         <div class="big-icon ok">✓</div>
-        <p class="lead">আপনার উত্তর সঠিক হয়েছে।</p>
-        <div class="prize small">
-          <span class="prize-line">আপনি জিততে পারবেন</span>
-          <span class="prize-amount">১০,০০০</span>
-          <span class="prize-cash">টাকা ক্যাশ</span>
+        <p class="lead strong">আপনার উত্তর সঠিক হয়েছে!</p>
+        <p class="lead">আপনার সময়: <b id="correctTime">—</b></p>
+
+        <div class="conditions">
+          <div class="cond-item done">
+            <span class="cond-box">✓</span>
+            <span>দ্রুততম সময়ে সবগুলোর সঠিক উত্তর</span>
+          </div>
+          <div class="cond-item">
+            <span class="cond-box"></span>
+            <span>ন্যূনতম ৩ জনকে টালিখাতা রেফার করে ইন্সটল করে দেয়া</span>
+          </div>
         </div>
-        <p class="lead">আপনার <b>১০ জন</b> বন্ধুকে WhatsApp-এ শেয়ার করুন।</p>
+
+        <p class="lead">রেফার করে ইন্সটল করতে <b>১০ জন</b> ব্যবসায়ী বা বন্ধুকে WhatsApp-এ শেয়ার করুন।</p>
 
         <div class="share-icons">
           <button class="share-icon big" data-share="whatsapp" aria-label="WhatsApp">
@@ -119,92 +160,38 @@
           </button>
         </div>
 
-        <button class="btn btn-primary btn-narrow mt-auto" id="shareNextBtn" data-action="share-next" disabled>পরবর্তী</button>
-        <p class="field-help" id="shareHint">পরবর্তী ধাপে যেতে একবার WhatsApp-এ শেয়ার করুন।</p>
+        <button class="btn btn-primary btn-narrow mt-auto" id="correctNextBtn" data-action="correct-next" disabled>পরবর্তী</button>
+        <p class="field-help" id="correctHint">পরবর্তী ধাপে যেতে একবার WhatsApp-এ শেয়ার করুন।</p>
       </div>
     </section>
 
-    <!-- ================= SCREEN: DOWNLOAD (Slide 13) ================= -->
+    <!-- ================= SCREEN 10: DOWNLOAD ================= -->
     <section class="screen" data-screen="download">
       <div class="screen-body center">
-        <p class="lead strong">আপনি সফলভাবে পৌঁছে গেছেন সর্বশেষ ধাপে।</p>
         <img class="app-shot" src="assets/app-preview.png" alt="টালিখাতা অ্যাপ" onerror="this.style.display='none'"/>
-        <p class="lead">টালিখাতা অ্যাপটি ডাউনলোড ও রেজিস্ট্রেশন করে আপনার অংশগ্রহণ সম্পন্ন করুন।</p>
-        <a class="btn btn-primary" id="downloadBtn" data-action="download" target="_blank" rel="noopener">ডাউনলোড</a>
-        <button class="btn-text" data-action="confirm-installed">ডাউনলোড ও রেজিস্ট্রেশন সম্পন্ন করেছি</button>
+        <p class="lead strong">শেষ ধাপ — টালিখাতা অ্যাপ ডাউনলোড ও রেজিস্ট্রেশন করুন।</p>
+
+        <a class="download-card" id="downloadBtn" data-action="download" target="_blank" rel="noopener">
+          <img class="dl-icon" src="assets/tk-logo.png" alt="টালিখাতা" />
+          <span class="dl-store">
+            <small>GET IT ON</small>
+            <b>▶ Google Play — ডাউনলোড</b>
+          </span>
+        </a>
+
+        <button class="btn btn-primary btn-narrow mt-auto" id="finalBtn" data-action="finish" disabled>চূড়ান্ত ধাপ সম্পন্ন করুন</button>
+        <p class="field-help" id="downloadHint">আগে উপরের ডাউনলোড বোতামে ট্যাপ করুন।</p>
       </div>
     </section>
 
-    <!-- ================= SCREEN: FINAL / FACEBOOK (Slide 14) ================= -->
+    <!-- ================= FINAL / CONGRATS ================= -->
     <section class="screen" data-screen="final">
       <div class="screen-body center">
         <img class="hero-logo" src="assets/tk-logo-vertical.png" alt="টালিখাতা" />
         <h1 class="hl congrats">অভিনন্দন!</h1>
         <p class="lead">আপনি সফলভাবে সকল ধাপ সম্পন্ন করেছেন।<br/>আগামী ৩০ জুলাইয়ের মধ্যে বিজয়ী ঘোষণা করা হবে।</p>
         <p class="lead">জেতার সম্ভাবনা বাড়াতে আরও বেশি বন্ধুকে WhatsApp-এ শেয়ার করুন।</p>
-
-        <button class="btn btn-wa" data-action="reshare-whatsapp">WhatsApp-এ আবার শেয়ার করুন</button>
-        <button class="btn-text" data-action="goto-myinfo">আমার রেফারেল দেখুন</button>
-      </div>
-    </section>
-
-    <!-- ================= SCREEN: ALREADY PARTICIPATED ================= -->
-    <section class="screen" data-screen="already">
-      <div class="screen-body center">
-        <div class="big-icon ok">✓</div>
-        <h2 class="hl center-text">আপনি ইতিমধ্যে অংশগ্রহণ করেছেন।</h2>
-        <p class="lead">একজন ব্যক্তি একবারই অংশগ্রহণ করতে পারবেন। তবে জেতার সম্ভাবনা বাড়াতে আপনার সব বন্ধুর সাথে শেয়ার করুন — যত বেশি টালিখাতা ব্যবহারকারী রেফার করবেন, জেতার সুযোগ তত বেশি।</p>
-
-        <div class="stat-pill">
-          <span class="stat-num" id="alreadyRefCount">০</span>
-          <span class="stat-cap">জন টালিখাতা ব্যবহারকারী রেফার করেছেন</span>
-        </div>
-
-        <button class="btn btn-wa" data-action="reshare-whatsapp">WhatsApp-এ শেয়ার করুন</button>
-        <button class="btn-text" data-action="goto-home">হোমে ফিরে যান</button>
-      </div>
-    </section>
-
-    <!-- ================= SCREEN: MY INFO — mobile entry ================= -->
-    <section class="screen" data-screen="myinfo">
-      <div class="screen-body center">
-        <h2 class="hl center-text">আমার তথ্য</h2>
-        <p class="lead">আপনি কতজন টালিখাতা ব্যবহারকারী রেফার করেছেন তা দেখতে আপনার মোবাইল নম্বর দিন।</p>
-        <label class="field-label" for="myinfoMobile">আপনার মোবাইল নম্বর</label>
-        <div class="phone-field">
-          <span class="phone-prefix">+88</span>
-          <input id="myinfoMobile" type="tel" inputmode="numeric" maxlength="11" placeholder="01XXXXXXXXX" />
-        </div>
-        <p class="field-error" id="myinfoError" hidden></p>
-        <button class="btn btn-primary mt-auto" data-action="send-otp">OTP পাঠান</button>
-        <button class="btn-text" data-action="goto-home">ফিরে যান</button>
-      </div>
-    </section>
-
-    <!-- ================= SCREEN: MY INFO — OTP ================= -->
-    <section class="screen" data-screen="otp">
-      <div class="screen-body center">
-        <h2 class="hl center-text">OTP যাচাই</h2>
-        <p class="lead"><span id="otpMobileLabel"></span> নম্বরে পাঠানো ৬ সংখ্যার কোডটি দিন।</p>
-        <input id="otpInput" class="otp-input" type="tel" inputmode="numeric" maxlength="6" placeholder="------" />
-        <p class="field-error" id="otpError" hidden>ভুল OTP। আবার চেষ্টা করুন।</p>
-        <p class="demo-note" id="otpDemoNote"></p>
-        <button class="btn btn-primary" data-action="verify-otp">যাচাই করুন</button>
-        <button class="btn-text" data-action="goto-myinfo">নম্বর পরিবর্তন করুন</button>
-      </div>
-    </section>
-
-    <!-- ================= SCREEN: MY INFO — RESULT ================= -->
-    <section class="screen" data-screen="myresult">
-      <div class="screen-body center">
-        <h2 class="hl center-text">আপনার রেফারেল</h2>
-        <div class="stat-pill big">
-          <span class="stat-num" id="myRefCount">০</span>
-          <span class="stat-cap">জন টালিখাতা ব্যবহারকারী আপনি রেফার করেছেন</span>
-        </div>
-        <p class="lead" id="myRankLine"></p>
-        <p class="lead">আরও বেশি রেফার করে জেতার সুযোগ বাড়ান!</p>
-        <button class="btn btn-wa" data-action="reshare-whatsapp">WhatsApp-এ শেয়ার করুন</button>
+        <button class="btn btn-wa btn-narrow" data-action="reshare-whatsapp">WhatsApp-এ আবার শেয়ার করুন</button>
         <button class="btn-text" data-action="goto-home">হোমে ফিরে যান</button>
       </div>
     </section>
@@ -213,10 +200,26 @@
     <footer class="app-footer">
       <div class="progress" id="progressWrap">
         <div class="progress-bar"><span id="progressBar"></span></div>
-        <div class="progress-pct" id="progressPct">০%</div>
       </div>
       <img class="footer-logo" src="assets/tk-logo-horizontal.png" alt="টালিখাতা" />
     </footer>
+  </div>
+
+  <!-- terms & conditions modal -->
+  <div class="modal" id="termsModal" hidden>
+    <div class="modal-box">
+      <h3>শর্তাবলী ও নিয়মাবলী</h3>
+      <ul>
+        <li>সকল ধাপ সফলভাবে সম্পন্ন করতে হবে।</li>
+        <li>সবচেয়ে দ্রুত সময়ে সবগুলো সঠিক উত্তর দিতে হবে।</li>
+        <li>বিজয়ী হতে কমপক্ষে ৩ জনকে রেফার করে টালিখাতা ইনস্টল ও রেজিস্ট্রেশন করাতে হবে।</li>
+        <li>সবচেয়ে বেশি রেফারেল ইনস্টল ও সবচেয়ে কম সময়ের রেকর্ডধারীরা বিজয়ী হবেন।</li>
+        <li>প্রথম ৩ দিনের মধ্যে ৩ জন ও ৩০ জুলাই-এর মধ্যে বাকি ৭ জন বিজয়ী ঘোষণা করা হবে।</li>
+        <li>পুরস্কার ব্যাংক একাউন্ট বা মোবাইল নাম্বারের মাধ্যমে দেওয়া হবে।</li>
+        <li>পুরস্কার ঘোষণা ও বিতরণ টালিখাতার অফিসিয়াল ফেসবুক পেজের মাধ্যমে জানানো হবে।</li>
+      </ul>
+      <button class="btn btn-primary btn-narrow" data-action="close-terms">বুঝেছি</button>
+    </div>
   </div>
 
   <!-- toast -->
