@@ -190,9 +190,15 @@ const QUIZ = [
 ];
 
 const PROFESSIONS = [
-  "মুদি ব্যবসায়ী", "ফার্মেসি ব্যবসায়ী", "হার্ডওয়্যার ব্যবসায়ী",
-  "রেস্তোরাঁ ব্যবসায়ী", "ডিলার / ডিস্ট্রিবিউটর", "জুতা ব্যবসায়ী",
-  "চাকুরি", "শিক্ষার্থী", "অন্যান্য",
+  { name: "মুদি ব্যবসায়ী", icon: "🛒" },
+  { name: "ফার্মেসি ব্যবসায়ী", icon: "💊" },
+  { name: "হার্ডওয়্যার ব্যবসায়ী", icon: "🔧" },
+  { name: "রেস্তোরাঁ ব্যবসায়ী", icon: "🍽️" },
+  { name: "ডিলার / ডিস্ট্রিবিউটর", icon: "🚚" },
+  { name: "জুতা ব্যবসায়ী", icon: "👟" },
+  { name: "চাকুরি", icon: "💼" },
+  { name: "শিক্ষার্থী", icon: "🎓" },
+  { name: "অন্যান্য", icon: "🔖" },
 ];
 
 /* =============================== STATE =============================== */
@@ -296,15 +302,25 @@ function renderProfessions() {
   PROFESSIONS.forEach((p) => {
     const b = document.createElement("button");
     b.className = "prof-btn";
-    b.textContent = p;
-    b.onclick = () => {
-      $$(".prof-btn", grid).forEach((x) => x.classList.remove("selected"));
-      b.classList.add("selected");
-      state.profession = p;
-      $("#professionNextBtn").disabled = false;
-    };
+    b.dataset.name = p.name;
+    b.innerHTML = `<span class="prof-icon">${p.icon}</span><span class="prof-name">${p.name}</span>`;
+    b.onclick = () => selectProfession(b);
     grid.appendChild(b);
   });
+}
+function selectProfession(btn) {
+  $$(".prof-btn").forEach((x) => x.classList.remove("selected"));
+  btn.classList.add("selected");
+  state.profession = btn.dataset.name;
+  $("#professionNextBtn").disabled = false;
+}
+// pre-select a profession by name (used when a returning participant replays)
+function preselectProfession(name) {
+  state.profession = null;
+  $("#professionNextBtn").disabled = true;
+  $$(".prof-btn").forEach((x) => x.classList.remove("selected"));
+  const btn = $$(".prof-btn").find((b) => b.dataset.name === name);
+  if (btn) selectProfession(btn);
 }
 function professionNext() {
   if (!state.profession) return;
@@ -457,11 +473,10 @@ function finish() {
 
 /* ============================ REPLAY ============================== */
 function playAgain() {
-  // returning participant re-runs the same path (profession -> quiz ...)
-  state.profession = null;
-  $("#professionNextBtn").disabled = true;
-  $$(".prof-btn").forEach((x) => x.classList.remove("selected"));
+  // returning participant re-runs the same path, with their previous profession pre-selected
   show("profession");
+  const p = API.getParticipant(state.mobile);
+  preselectProfession(p && p.profession);
 }
 
 function reshareWhatsapp() { doShare(); }
