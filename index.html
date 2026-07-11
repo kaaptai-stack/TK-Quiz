@@ -39,6 +39,8 @@
         <img class="hero-creative" src="assets/hero-creative.png" alt="জিতে নিন ১০,০০০ টাকা ক্যাশ — ১০ জন বিজয়ী" />
         <p class="intro-lead">কুইজের সব প্রশ্নের সঠিক উত্তর দিন আর টালিখাতা রেফার করে জিতে নিন আকর্ষণীয় পুরস্কার। এ সুযোগ সীমিত সময়ের জন্য।</p>
 
+        <div class="schedule" id="introSchedule"></div>
+
         <label class="terms-check">
           <input type="checkbox" id="termsCheck" />
           <span>আমি <a href="#" data-action="open-terms">শর্তাবলী ও নিয়মাবলী</a> পড়েছি ও সম্মত আছি।</span>
@@ -91,9 +93,30 @@
         <p class="lead" id="rpRegStatus"></p>
         <a class="dl-link" id="rpDownloadBtn" data-action="download" target="_blank" rel="noopener" hidden>Download</a>
 
+        <p class="lead">রেফার করে আরও বেশি টালিখাতা ইনস্টল ও রেজিস্ট্রেশন করাতে সব ব্যবসায়ী বন্ধুকে বেশি বেশি শেয়ার করুন।</p>
+        <button class="btn btn-wa btn-narrow" data-action="reshare-whatsapp">WhatsApp-এ শেয়ার করুন</button>
+
         <p class="reminder" id="rpReminder">
-          বিজয়ী হতে কমপক্ষে <b>৩ জনকে</b> রেফারে টালিখাতা ইনস্টল করাতে হবে। সবচেয়ে বেশি রেফারেল ইনস্টল ও সবচেয়ে কম সময়ের রেকর্ডধারীরাই বিজয়ী হবেন।
+          বিজয়ী হতে কমপক্ষে <b>৩ জনকে</b> রেফার করে টালিখাতা ইনস্টল ও রেজিস্ট্রেশন করাতে হবে। সবচেয়ে বেশি রেফারেল রেজিস্ট্রেশন ও সবচেয়ে কম সময়ের রেকর্ডধারীরাই বিজয়ী হবেন।
         </p>
+
+        <!-- campaign schedule -->
+        <div class="section-block">
+          <div class="section-title">ক্যাম্পেইন সময়সূচি</div>
+          <div class="schedule" id="rpSchedule"></div>
+        </div>
+
+        <!-- today's top 10 -->
+        <div class="section-block">
+          <div class="section-title">🏅 আজকের শীর্ষ ১০ অংশগ্রহণকারী</div>
+          <div class="leaderboard" id="leaderboard"></div>
+        </div>
+
+        <!-- winners -->
+        <div class="section-block">
+          <div class="section-title">🏆 বিজয়ীগণ</div>
+          <div class="winners" id="winnersList"></div>
+        </div>
 
         <button class="btn btn-primary btn-narrow mt-auto" data-action="play-again">আবার অংশগ্রহণ করুন</button>
         <button class="btn-text" data-action="goto-home">হোমে ফিরে যান</button>
@@ -106,6 +129,41 @@
         <h2 class="hl center-text">আপনার পেশা বাছাই করুন</h2>
         <div class="profession-grid" id="professionGrid"><!-- filled by JS --></div>
         <button class="btn btn-primary btn-narrow mt-auto" id="professionNextBtn" data-action="profession-next" disabled>পরবর্তী</button>
+      </div>
+    </section>
+
+    <!-- ================= THREE STEPS (interstitial) ================= -->
+    <section class="screen" data-screen="steps">
+      <div class="screen-body">
+        <h2 class="hl center-text">ক্যাম্পেইনের তিনটি ধাপ</h2>
+
+        <div class="step-cards">
+          <div class="step-card">
+            <span class="step-num">১</span>
+            <div>
+              <div class="step-head">প্রথম ধাপ</div>
+              <p>টালিখাতা ও টালিপে সম্পর্কিত ৫টি প্রশ্ন।</p>
+            </div>
+          </div>
+          <div class="step-card">
+            <span class="step-num">২</span>
+            <div>
+              <div class="step-head">দ্বিতীয় ধাপ</div>
+              <p>টালিখাতা অ্যাপ রেফার করুন ব্যবসায়ী বন্ধুকে হোয়াটসঅ্যাপের মাধ্যমে। ন্যূনতম ৩ জনকে রেফার করে টালিখাতা অ্যাপ ইন্সটল ও রেজিস্ট্রেশন করে দিন।</p>
+            </div>
+          </div>
+          <div class="step-card">
+            <span class="step-num">৩</span>
+            <div>
+              <div class="step-head">তৃতীয় ধাপ</div>
+              <p>নিজের টালিখাতা অ্যাপ রেজিস্ট্রেশন করা না থাকলে ডাউনলোড করুন ও রেজিস্ট্রেশন করুন।</p>
+            </div>
+          </div>
+        </div>
+
+        <p class="win-note">সবচেয়ে দ্রুত সঠিক উত্তরদাতা ও সবচেয়ে বেশি রেফার করে টালিখাতা রেজিস্ট্রেশনকারী টালিখাতা ইউজার হবেন বিজয়ী।</p>
+
+        <button class="btn btn-primary btn-narrow mt-auto" data-action="steps-next">শুরু করুন</button>
       </div>
     </section>
 
@@ -140,6 +198,7 @@
         <p class="lead strong">আপনার উত্তর সঠিক হয়েছে!</p>
         <p class="lead">আপনার সময়: <b id="correctTime">—</b></p>
 
+        <div class="section-title">ক্যাম্পেইনে জেতার শর্তাবলী</div>
         <div class="conditions">
           <div class="cond-item done">
             <span class="cond-box">✓</span>
@@ -147,11 +206,15 @@
           </div>
           <div class="cond-item">
             <span class="cond-box"></span>
-            <span>ন্যূনতম ৩ জনকে টালিখাতা রেফার করে ইন্সটল করে দেয়া</span>
+            <span>ন্যূনতম ৩ জনকে টালিখাতা রেফার করে ইন্সটল ও রেজিস্ট্রেশন করে দেয়া</span>
+          </div>
+          <div class="cond-item">
+            <span class="cond-box"></span>
+            <span>নিজের টালিখাতা রেজিস্ট্রেশন থাকতে হবে</span>
           </div>
         </div>
 
-        <p class="lead">রেফার করে ইন্সটল করতে <b>১০ জন</b> ব্যবসায়ী বা বন্ধুকে WhatsApp-এ শেয়ার করুন।</p>
+        <p class="lead">রেফার করে ইন্সটল করতে যত বেশি সম্ভব ব্যবসায়ী বন্ধুকে WhatsApp-এ শেয়ার করুন।</p>
 
         <div class="share-icons">
           <button class="share-icon big" data-share="whatsapp" aria-label="WhatsApp">
@@ -160,8 +223,7 @@
           </button>
         </div>
 
-        <button class="btn btn-primary btn-narrow mt-auto" id="correctNextBtn" data-action="correct-next" disabled>পরবর্তী</button>
-        <p class="field-help" id="correctHint">পরবর্তী ধাপে যেতে একবার WhatsApp-এ শেয়ার করুন।</p>
+        <button class="btn btn-primary btn-narrow mt-auto" id="correctNextBtn" data-action="correct-next">পরবর্তী</button>
       </div>
     </section>
 
@@ -169,7 +231,8 @@
     <section class="screen" data-screen="download">
       <div class="screen-body center">
         <img class="app-shot" src="assets/app-preview.png" alt="টালিখাতা অ্যাপ" onerror="this.style.display='none'"/>
-        <p class="lead strong">শেষ ধাপ — টালিখাতা অ্যাপ ডাউনলোড ও রেজিস্ট্রেশন করুন।</p>
+        <h2 class="hl center-text">শেষ ধাপ</h2>
+        <p class="lead strong">টালিখাতা অ্যাপ ডাউনলোড ও রেজিস্ট্রেশন করুন।</p>
 
         <a class="download-card" id="downloadBtn" data-action="download" target="_blank" rel="noopener">
           <img class="dl-icon" src="assets/tk-logo.png" alt="টালিখাতা" />
@@ -179,8 +242,7 @@
           </span>
         </a>
 
-        <button class="btn btn-primary btn-narrow mt-auto" id="finalBtn" data-action="finish" disabled>চূড়ান্ত ধাপ সম্পন্ন করুন</button>
-        <p class="field-help" id="downloadHint">আগে উপরের ডাউনলোড বোতামে ট্যাপ করুন।</p>
+        <button class="btn btn-primary btn-narrow mt-auto" id="finalBtn" data-action="finish">চূড়ান্ত ধাপ সম্পন্ন করুন</button>
       </div>
     </section>
 
@@ -189,7 +251,7 @@
       <div class="screen-body center">
         <img class="hero-logo" src="assets/tk-logo-vertical.png" alt="টালিখাতা" />
         <h1 class="hl congrats">অভিনন্দন!</h1>
-        <p class="lead">আপনি সফলভাবে সকল ধাপ সম্পন্ন করেছেন।<br/>আগামী ৩০ জুলাইয়ের মধ্যে বিজয়ী ঘোষণা করা হবে।</p>
+        <p class="lead">আপনি সফলভাবে সকল ধাপ সম্পন্ন করেছেন।</p>
         <p class="lead">জেতার সম্ভাবনা বাড়াতে আরও বেশি বন্ধুকে WhatsApp-এ শেয়ার করুন।</p>
         <button class="btn btn-wa btn-narrow" data-action="reshare-whatsapp">WhatsApp-এ আবার শেয়ার করুন</button>
         <button class="btn-text" data-action="goto-home">হোমে ফিরে যান</button>
@@ -211,12 +273,11 @@
       <h3>শর্তাবলী ও নিয়মাবলী</h3>
       <ul>
         <li>সকল ধাপ সফলভাবে সম্পন্ন করতে হবে।</li>
-        <li>সবচেয়ে দ্রুত সময়ে সবগুলো সঠিক উত্তর দিতে হবে।</li>
-        <li>বিজয়ী হতে কমপক্ষে ৩ জনকে রেফার করে টালিখাতা ইনস্টল ও রেজিস্ট্রেশন করাতে হবে।</li>
-        <li>সবচেয়ে বেশি রেফারেল ইনস্টল ও সবচেয়ে কম সময়ের রেকর্ডধারীরা বিজয়ী হবেন।</li>
-        <li>প্রথম ৩ দিনের মধ্যে ৩ জন ও ৩০ জুলাই-এর মধ্যে বাকি ৭ জন বিজয়ী ঘোষণা করা হবে।</li>
-        <li>পুরস্কার ব্যাংক একাউন্ট বা মোবাইল নাম্বারের মাধ্যমে দেওয়া হবে।</li>
+        <li>বিজয়ী হতে কমপক্ষে ৩ জনকে রেফার করে টালিখাতা ইনস্টল ও রেজিস্ট্রেশন করাতে হবে। সবচেয়ে বেশি রেফারেল রেজিস্ট্রেশন ও সবচেয়ে কম সময়ের রেকর্ডধারীরাই বিজয়ী হবেন।</li>
+        <li>প্রতিদিন ১ জন পুরষ্কার পাবেন ক্যাম্পেইন চলাকালীন সময়ে।</li>
+        <li>পুরস্কার টালিপে একাউন্টে জমা করা হবে।</li>
         <li>পুরস্কার ঘোষণা ও বিতরণ টালিখাতার অফিসিয়াল ফেসবুক পেজের মাধ্যমে জানানো হবে।</li>
+        <li>টালিখাতা কর্তৃপক্ষ যেকোন সময় কোন ধরণের কারণ দর্শানো ছাড়া ও পূর্ববর্তী নোটিশ ছাড়া এই ক্যাম্পেইন পরিবর্তন, পরিবর্ধন, পরিমার্জন, বাতিল করতে পারবে।</li>
       </ul>
       <button class="btn btn-primary btn-narrow" data-action="close-terms">বুঝেছি</button>
     </div>

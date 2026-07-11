@@ -64,7 +64,9 @@ server using `localStorage`. To go live, replace each `API.*` method body with a
 
 Also update `CONFIG` at the top of `app.js`:
 `portalUrl` (fallback only — the share link uses the live page URL automatically),
-`appStoreUrl`, `fbPage`, `minShares`, `minReferralsToWin`, `totalSteps`, `campaignId`.
+`appStoreUrl`, `fbPage`, `minReferralsToWin`, `totalSteps`, `campaignId`,
+`campaignStart` / `campaignEnd` (calendar schedule), and `winners` (add one per day —
+each `{ date, name, district, photo }`).
 The `og:image`/`og:url` in `index.html` must be absolute, public URLs (set to the GitHub
 Pages address) for the WhatsApp link preview to show the TallyKhata logo.
 

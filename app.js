@@ -14,10 +14,19 @@ const CONFIG = {
   portalUrl: "http://localhost:8123/",
   appStoreUrl: "https://play.google.com/store/apps/details?id=com.progoti.tallykhata",
   fbPage: "https://www.facebook.com/TallyKhataApp",
-  minShares: 1,            // one WhatsApp share unlocks the next step
   minReferralsToWin: 3,    // win condition reminder
   totalSteps: 10,          // for the top-right step counter (X/১০)
   prizeBn: "১০,০০০",
+
+  // Campaign schedule (calendar time). Edit these to the real dates.
+  campaignStart: "2026-07-01T10:00:00",
+  campaignEnd:   "2026-07-31T23:59:00",
+
+  // Winners list — added one per day from the campaign's 2nd day onward.
+  // Each: { date: "YYYY-MM-DD", name, district, photo (optional URL) }
+  winners: [
+    // { date: "2026-07-02", name: "রহিম উদ্দিন", district: "ঢাকা", photo: "" },
+  ],
 };
 
 /* --------------------------- UTILITIES ---------------------------- */
@@ -26,6 +35,7 @@ const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 
 const BN_DIGITS = ["০","১","২","৩","৪","৫","৬","৭","৮","৯"];
 const toBn = (n) => String(n).replace(/\d/g, (d) => BN_DIGITS[+d]);
+const BN_MONTHS = ["জানুয়ারি","ফেব্রুয়ারি","মার্চ","এপ্রিল","মে","জুন","জুলাই","আগস্ট","সেপ্টেম্বর","অক্টোবর","নভেম্বর","ডিসেম্বর"];
 
 function normalizeMobile(raw) {
   let d = (raw || "").replace(/\D/g, "");
@@ -147,8 +157,31 @@ const API = (() => {
         selfRegistered: !!p.selfRegistered,
       };
     },
+
+    /** Top-N participants for a given day (default today), ranked by
+        referral installs (desc) then best time (asc). */
+    leaderboard(dayKey, limit = 10) {
+      const db = load();
+      return Object.values(db.participants)
+        .filter((p) => p.bestTimeMs != null && (!dayKey || dayKeyOf(p.bestAt) === dayKey))
+        .sort((a, b) =>
+          (b.referredInstalls || 0) - (a.referredInstalls || 0) ||
+          (a.bestTimeMs || Infinity) - (b.bestTimeMs || Infinity))
+        .slice(0, limit);
+    },
   };
 })();
+
+// local calendar day key "YYYY-MM-DD" for a timestamp
+function dayKeyOf(ts) {
+  if (!ts) return null;
+  const d = new Date(ts);
+  const p = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+function maskMobile(m) {
+  return m && m.length === 11 ? m.slice(0, 5) + "***" + m.slice(8) : m;
+}
 
 /* =====================================================================
    QUIZ DATA
@@ -170,11 +203,11 @@ const QUIZ = [
     ],
   },
   {
-    q: "আনলিমিটেড এন্ট্রি প্যাকেজ এর দাম কত?",
+    q: "টালিখাতা অ্যাপে আনলিমিটেড এন্ট্রি প্যাকেজ এর দাম কত?",
     options: ["৭৯ টাকা", "১২৯ টাকা", "১০০ টাকা"],
   },
   {
-    q: "টালিপে কিউআর-এ নিচের কোন কোন অ্যাপ থেকে পেমেন্ট নেয়া যায়?",
+    q: "টালিপে QR-এ নিচের কোন কোন অ্যাপ থেকে পেমেন্ট নেয়া যায়?",
     multi: true,
     options: [
       { text: "নগদ", correct: true },
@@ -184,8 +217,8 @@ const QUIZ = [
     ],
   },
   {
-    q: "টালিপে কিউআর কিভাবে পাওয়া যায়?",
-    options: ["টালিখাতা অ্যাপ থেকে আবেদনের সাথে সাথে", "অফিসে গিয়ে আবেদন করে ৭ দিন পর"],
+    q: "টালিপে QR কিভাবে পাওয়া যায়?",
+    options: ["আবেদন করার পর সবচেয়ে দ্রুত পাওয়া যায়।", "অফিসে গিয়ে আবেদন করে ৭ দিন পর"],
   },
 ];
 
@@ -292,7 +325,58 @@ function showRepeat(mobile) {
     reg.innerHTML = "আপনি টালিখাতা রেজিস্ট্রেশন <b>করেননি</b>। জিততে হলে ডাউনলোড ও রেজিস্ট্রেশন করুন:";
     dl.hidden = false;
   }
+  renderSchedule("rpSchedule");
+  renderLeaderboard();
+  renderWinners();
   show("repeat");
+}
+
+/* ============= schedule / leaderboard / winners renderers ============ */
+function fmtScheduleDate(iso) {
+  const d = new Date(iso);
+  let h = d.getHours(); const ampm = h >= 12 ? "PM" : "AM"; h = h % 12 || 12;
+  const mm = String(d.getMinutes()).padStart(2, "0");
+  return `${toBn(d.getDate())} ${BN_MONTHS[d.getMonth()]} ${toBn(d.getFullYear())}, ${toBn(h)}:${toBn(mm)} ${ampm}`;
+}
+function renderSchedule(elId) {
+  const el = $("#" + elId);
+  if (!el) return;
+  el.innerHTML =
+    `<span><b>শুরু:</b> ${fmtScheduleDate(CONFIG.campaignStart)}</span>` +
+    `<span><b>শেষ:</b> ${fmtScheduleDate(CONFIG.campaignEnd)}</span>`;
+}
+function renderLeaderboard() {
+  const box = $("#leaderboard");
+  if (!box) return;
+  const rows = API.leaderboard(dayKeyOf(Date.now()), 10);
+  if (!rows.length) { box.innerHTML = '<div class="lb-empty">আজ এখনো কোনো অংশগ্রহণকারী নেই।</div>'; return; }
+  box.innerHTML = rows.map((p, i) => `
+    <div class="lb-row">
+      <span class="lb-rank">${toBn(i + 1)}</span>
+      <span class="lb-name">${maskMobile(p.mobile)}</span>
+      <span class="lb-ref">${toBn(p.referredInstalls || 0)} রেফার</span>
+      <span class="lb-time">${fmtDuration(p.bestTimeMs)}</span>
+    </div>`).join("");
+}
+function fmtWinDate(ymd) {
+  const [y, m, d] = ymd.split("-").map(Number);
+  return `${toBn(d)} ${BN_MONTHS[m - 1]} ${toBn(y)}`;
+}
+function renderWinners() {
+  const box = $("#winnersList");
+  if (!box) return;
+  if (!CONFIG.winners.length) {
+    box.innerHTML = '<div class="lb-empty">ক্যাম্পেইনের দ্বিতীয় দিন থেকে বিজয়ীদের নাম প্রকাশ করা হবে।</div>';
+    return;
+  }
+  box.innerHTML = CONFIG.winners.map((w) => `
+    <div class="winner-row">
+      <div class="winner-photo">${w.photo ? `<img src="${w.photo}" alt="">` : "👤"}</div>
+      <div class="winner-info">
+        <div class="winner-name">${w.name} <span class="winner-badge">🏆</span></div>
+        <div class="winner-meta">${w.district} · ${fmtWinDate(w.date)}</div>
+      </div>
+    </div>`).join("");
 }
 
 /* ============================ PROFESSION ============================ */
@@ -325,7 +409,7 @@ function preselectProfession(name) {
 function professionNext() {
   if (!state.profession) return;
   API.register(state.mobile, state.profession);
-  startQuiz();
+  show("steps");   // show the three campaign steps before the quiz
 }
 
 /* =============================== QUIZ =============================== */
@@ -358,7 +442,7 @@ function renderQuestion() {
 
   $("#quizHint").hidden = !isMulti;
   const confirmBtn = $("#quizConfirmBtn");
-  confirmBtn.hidden = !isMulti;
+  confirmBtn.hidden = false;          // every question is now select-then-submit
   confirmBtn.disabled = true;
 
   const wrap = $("#quizOptions");
@@ -368,19 +452,21 @@ function renderQuestion() {
     const j = Math.floor(Math.random() * (i + 1));
     [opts[i], opts[j]] = [opts[j], opts[i]];
   }
+  const syncConfirm = () => { confirmBtn.disabled = wrap.querySelector(".quiz-opt.selected") === null; };
   opts.forEach((o) => {
     const b = document.createElement("button");
     b.className = "quiz-opt" + (isMulti ? " multi" : "");
     b.textContent = o.text;
     b.dataset.correct = o.correct ? "1" : "0";
-    if (isMulti) {
-      b.onclick = () => {
+    b.onclick = () => {
+      if (isMulti) {
         b.classList.toggle("selected");
-        confirmBtn.disabled = wrap.querySelector(".quiz-opt.selected") === null;
-      };
-    } else {
-      b.onclick = () => answer(o.correct);
-    }
+      } else {                                          // single = radio select
+        wrap.querySelectorAll(".quiz-opt").forEach((x) => x.classList.remove("selected"));
+        b.classList.add("selected");
+      }
+      syncConfirm();
+    };
     wrap.appendChild(b);
   });
 }
@@ -402,8 +488,6 @@ function answer(correct) {
     state.lastQuizMs = Date.now() - state.quizStart;
     API.recordQuizTime(state.mobile, state.lastQuizMs);
     $("#correctTime").textContent = fmtDuration(state.lastQuizMs);
-    state.shares = 0;
-    updateShareUI();
     show("correct");
   }
 }
@@ -439,15 +523,8 @@ function doShare() {
 }
 function shareFromCorrect() {
   doShare();
-  state.shares++;
-  API.update(state.mobile, { shares: state.shares });
-  if (state.shares === CONFIG.minShares) toast("দারুণ! এবার পরবর্তী ধাপে যান।");
-  updateShareUI();
-}
-function updateShareUI() {
-  const done = state.shares >= CONFIG.minShares;
-  $("#correctNextBtn").disabled = !done;
-  $("#correctHint").style.display = done ? "none" : "block";
+  const p = API.getParticipant(state.mobile);
+  API.update(state.mobile, { shares: (p ? p.shares || 0 : 0) + 1 });
 }
 
 /* ============================= DOWNLOAD ============================= */
@@ -461,10 +538,6 @@ function buildDownloadUrl() {
 function onDownloadTap() {
   window.open(buildDownloadUrl(), "_blank");
   state.downloaded = true;
-  // enable the final "complete" button once download is tapped
-  const finalBtn = $("#finalBtn");
-  if (finalBtn) { finalBtn.disabled = false; $("#downloadHint").style.display = "none"; }
-  toast("ডাউনলোড ও রেজিস্ট্রেশন শেষে নিচের বোতামে ট্যাপ করুন।");
 }
 function finish() {
   API.confirmInstall(state.mobile, state.inviterCode);
@@ -491,7 +564,8 @@ const ACTIONS = {
   "profession-next": professionNext,
   "quiz-confirm": quizConfirm,
   "retry-quiz": retryQuiz,
-  "correct-next": () => { state.downloaded = false; $("#finalBtn").disabled = true; $("#downloadHint").style.display = "block"; show("download"); },
+  "steps-next": startQuiz,
+  "correct-next": () => show("download"),
   "finish": finish,
   "reshare-whatsapp": reshareWhatsapp,
   "goto-home": () => show("intro"),
@@ -515,6 +589,7 @@ function init() {
   $("#termsCheck").addEventListener("change", refreshStartGate);
   $("#mobileInput").addEventListener("keydown", (e) => { if (e.key === "Enter") submitMobile(); });
 
+  renderSchedule("introSchedule");
   show("intro");
 }
 
