@@ -21,7 +21,7 @@
   <meta property="og:image:height" content="1080" />
   <meta name="twitter:card" content="summary_large_image" />
 
-  <link rel="icon" href="assets/tk-logo.png" />
+  <link rel="icon" href="assets/tk-logo-vertical.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -36,17 +36,27 @@
     <!-- ================= SCREEN 1: INTRO ================= -->
     <section class="screen active" data-screen="intro">
       <div class="screen-body intro">
-        <img class="hero-creative" src="assets/hero-creative.png" alt="জিতে নিন ১০,০০০ টাকা ক্যাশ — ১০ জন বিজয়ী" />
+        <img class="hero-creative" src="assets/cover.png" alt="শেয়ার করুন, পুরস্কার জিতুন — প্রতিদিন ১,০০০ টাকা ক্যাশ" />
         <p class="intro-lead">কুইজের সব প্রশ্নের সঠিক উত্তর দিন আর টালিখাতা রেফার করে জিতে নিন আকর্ষণীয় পুরস্কার। এ সুযোগ সীমিত সময়ের জন্য।</p>
-
-        <div class="schedule" id="introSchedule"></div>
 
         <label class="terms-check">
           <input type="checkbox" id="termsCheck" />
           <span>আমি <a href="#" data-action="open-terms">শর্তাবলী ও নিয়মাবলী</a> পড়েছি ও সম্মত আছি।</span>
         </label>
 
-        <button class="btn btn-primary mt-auto" id="startBtn" data-action="start" disabled>আমি আগ্রহী</button>
+        <button class="btn btn-primary" id="startBtn" data-action="start" disabled>আমি আগ্রহী</button>
+
+        <!-- today's top 10 -->
+        <div class="section-block">
+          <div class="section-title">🏅 আজকের শীর্ষ ১০ অংশগ্রহণকারী</div>
+          <div class="table-wrap" id="leaderboard"></div>
+        </div>
+
+        <!-- winners -->
+        <div class="section-block">
+          <div class="section-title">🏆 বিজয়ীগণ</div>
+          <div class="table-wrap" id="winnersList"></div>
+        </div>
       </div>
     </section>
 
@@ -100,26 +110,8 @@
           বিজয়ী হতে কমপক্ষে <b>৩ জনকে</b> রেফার করে টালিখাতা ইনস্টল ও রেজিস্ট্রেশন করাতে হবে। সবচেয়ে বেশি রেফারেল রেজিস্ট্রেশন ও সবচেয়ে কম সময়ের রেকর্ডধারীরাই বিজয়ী হবেন।
         </p>
 
-        <!-- campaign schedule -->
-        <div class="section-block">
-          <div class="section-title">ক্যাম্পেইন সময়সূচি</div>
-          <div class="schedule" id="rpSchedule"></div>
-        </div>
-
-        <!-- today's top 10 -->
-        <div class="section-block">
-          <div class="section-title">🏅 আজকের শীর্ষ ১০ অংশগ্রহণকারী</div>
-          <div class="leaderboard" id="leaderboard"></div>
-        </div>
-
-        <!-- winners -->
-        <div class="section-block">
-          <div class="section-title">🏆 বিজয়ীগণ</div>
-          <div class="winners" id="winnersList"></div>
-        </div>
-
         <button class="btn btn-primary btn-narrow mt-auto" data-action="play-again">আবার অংশগ্রহণ করুন</button>
-        <button class="btn-text" data-action="goto-home">হোমে ফিরে যান</button>
+        <button class="btn-text" data-action="goto-home">← পিছনে / হোমে ফিরে যান</button>
       </div>
     </section>
 
@@ -129,6 +121,16 @@
         <h2 class="hl center-text">আপনার পেশা বাছাই করুন</h2>
         <div class="profession-grid" id="professionGrid"><!-- filled by JS --></div>
         <button class="btn btn-primary btn-narrow mt-auto" id="professionNextBtn" data-action="profession-next" disabled>পরবর্তী</button>
+      </div>
+    </section>
+
+    <!-- ================= TALLYKHATA UI + QR (interstitial) ================= -->
+    <section class="screen" data-screen="qrinfo">
+      <div class="screen-body center">
+        <h2 class="hl center-text">টালিখাতা ও টালিপে বাংলা QR</h2>
+        <img class="qr-sticker" src="assets/tk-qr-sticker.png" alt="টালিখাতা অ্যাপ ও টালিপে বাংলা QR স্টিকার" />
+        <p class="lead">টালিখাতা অ্যাপে হিসাব রাখুন আর টালিপে বাংলা QR দিয়ে সব অ্যাপ থেকে পেমেন্ট নিন।</p>
+        <button class="btn btn-primary btn-narrow mt-auto" data-action="qrinfo-next">পরবর্তী</button>
       </div>
     </section>
 
@@ -149,7 +151,7 @@
             <span class="step-num">২</span>
             <div>
               <div class="step-head">দ্বিতীয় ধাপ</div>
-              <p>টালিখাতা অ্যাপ রেফার করুন ব্যবসায়ী বন্ধুকে হোয়াটসঅ্যাপের মাধ্যমে। ন্যূনতম ৩ জনকে রেফার করে টালিখাতা অ্যাপ ইন্সটল ও রেজিস্ট্রেশন করে দিন।</p>
+              <p>টালিখাতা অ্যাপ রেফার করুন ব্যবসায়ী বন্ধুকে হোয়াটসঅ্যাপের মাধ্যমে। ন্যূনতম ১০ জনকে টালিখাতা অ্যাপ রেফার করুন।</p>
             </div>
           </div>
           <div class="step-card">
@@ -161,7 +163,7 @@
           </div>
         </div>
 
-        <p class="win-note">সবচেয়ে দ্রুত সঠিক উত্তরদাতা ও সবচেয়ে বেশি রেফার করে টালিখাতা রেজিস্ট্রেশনকারী টালিখাতা ইউজার হবেন বিজয়ী।</p>
+        <p class="win-note">প্রতিদিন সবচেয়ে দ্রুত সঠিক উত্তরদাতা ও রেফার করে সর্বোচ্চ টালিখাতা অ্যাপ রেজিস্ট্রেশন করে দেয়া অংশগ্রহণকারীই হবেন বিজয়ী।</p>
 
         <button class="btn btn-primary btn-narrow mt-auto" data-action="steps-next">শুরু করুন</button>
       </div>
@@ -199,22 +201,22 @@
         <p class="lead">আপনার সময়: <b id="correctTime">—</b></p>
 
         <div class="section-title">ক্যাম্পেইনে জেতার শর্তাবলী</div>
-        <div class="conditions">
-          <div class="cond-item done">
-            <span class="cond-box">✓</span>
-            <span>দ্রুততম সময়ে সবগুলোর সঠিক উত্তর</span>
+        <div class="timeline">
+          <div class="tl-item done">
+            <span class="tl-node">✓</span>
+            <span class="tl-label">দ্রুততম সময়ে সবগুলোর সঠিক উত্তর</span>
           </div>
-          <div class="cond-item">
-            <span class="cond-box"></span>
-            <span>ন্যূনতম ৩ জনকে টালিখাতা রেফার করে ইন্সটল ও রেজিস্ট্রেশন করে দেয়া</span>
+          <div class="tl-item active">
+            <span class="tl-node"></span>
+            <span class="tl-label">ন্যূনতম ৩ জনকে টালিখাতা রেফার করে ইন্সটল ও রেজিস্ট্রেশন করে দেয়া</span>
           </div>
-          <div class="cond-item">
-            <span class="cond-box"></span>
-            <span>নিজের টালিখাতা রেজিস্ট্রেশন থাকতে হবে</span>
+          <div class="tl-item">
+            <span class="tl-node"></span>
+            <span class="tl-label">নিজের টালিখাতা রেজিস্ট্রেশন থাকতে হবে</span>
           </div>
         </div>
 
-        <p class="lead">রেফার করে ইন্সটল করতে যত বেশি সম্ভব ব্যবসায়ী বন্ধুকে WhatsApp-এ শেয়ার করুন।</p>
+        <p class="lead">রেফার করে টালিখাতা অ্যাপ রেজিস্ট্রেশন করাতে WhatsApp-এর মাধ্যমে আপনার যত বেশি সম্ভব ব্যবসায়ী বন্ধুকে ও গ্রুপে শেয়ার করুন।</p>
 
         <div class="share-icons">
           <button class="share-icon big" data-share="whatsapp" aria-label="WhatsApp">
@@ -223,7 +225,7 @@
           </button>
         </div>
 
-        <button class="btn btn-primary btn-narrow mt-auto" id="correctNextBtn" data-action="correct-next">পরবর্তী</button>
+        <button class="btn btn-primary btn-narrow mt-auto" id="correctNextBtn" data-action="correct-next" disabled>পরবর্তী</button>
       </div>
     </section>
 
@@ -234,15 +236,14 @@
         <h2 class="hl center-text">শেষ ধাপ</h2>
         <p class="lead strong">টালিখাতা অ্যাপ ডাউনলোড ও রেজিস্ট্রেশন করুন।</p>
 
-        <a class="download-card" id="downloadBtn" data-action="download" target="_blank" rel="noopener">
-          <img class="dl-icon" src="assets/tk-logo.png" alt="টালিখাতা" />
+        <a class="download-card" id="downloadBtn" data-action="download" href="https://www.tallykhata.com/app" target="_blank" rel="noopener">
+          <img class="dl-icon" src="assets/tk-logo-vertical.png" alt="টালিখাতা" />
           <span class="dl-store">
-            <small>GET IT ON</small>
-            <b>▶ Google Play — ডাউনলোড</b>
+            <b>টালিখাতা অ্যাপ ডাউনলোড করুন</b>
           </span>
         </a>
 
-        <button class="btn btn-primary btn-narrow mt-auto" id="finalBtn" data-action="finish">চূড়ান্ত ধাপ সম্পন্ন করুন</button>
+        <button class="btn btn-primary btn-narrow mt-auto" id="finalBtn" data-action="finish" disabled>জমা দিন</button>
       </div>
     </section>
 
@@ -263,7 +264,6 @@
       <div class="progress" id="progressWrap">
         <div class="progress-bar"><span id="progressBar"></span></div>
       </div>
-      <img class="footer-logo" src="assets/tk-logo-horizontal.png" alt="টালিখাতা" />
     </footer>
   </div>
 

@@ -12,7 +12,7 @@ const CONFIG = {
   // Fallback portal URL. The share link normally uses the LIVE page URL
   // (see portalBase()), so this only matters when opened via file://.
   portalUrl: "http://localhost:8123/",
-  appStoreUrl: "https://play.google.com/store/apps/details?id=com.progoti.tallykhata",
+  appStoreUrl: "https://www.tallykhata.com/app",
   fbPage: "https://www.facebook.com/TallyKhataApp",
   minReferralsToWin: 3,    // win condition reminder
   totalSteps: 10,          // for the top-right step counter (X/১০)
@@ -23,9 +23,9 @@ const CONFIG = {
   campaignEnd:   "2026-07-31T23:59:00",
 
   // Winners list — added one per day from the campaign's 2nd day onward.
-  // Each: { date: "YYYY-MM-DD", name, district, photo (optional URL) }
+  // Each: { date: "YYYY-MM-DD", name, district, registrations, time }
   winners: [
-    // { date: "2026-07-02", name: "রহিম উদ্দিন", district: "ঢাকা", photo: "" },
+    // { date: "2026-07-02", name: "রহিম উদ্দিন", district: "ঢাকা", registrations: 12, time: "১:০৫" },
   ],
 };
 
@@ -198,16 +198,12 @@ const QUIZ = [
     multi: true,
     options: [
       { text: "এন্ট্রি করলেই মেসেজ যায়", correct: true },
-      { text: "মোট বাকির পরিমাণ জানা যায়", correct: true },
+      { text: "কাস্টমারের সাথে ভুল বোঝাবুঝি দূর হয়", correct: true },
       { text: "কার কাছে কত বাকি সব জানা যায়", correct: true },
     ],
   },
   {
-    q: "টালিখাতা অ্যাপে আনলিমিটেড এন্ট্রি প্যাকেজ এর দাম কত?",
-    options: ["৭৯ টাকা", "১২৯ টাকা", "১০০ টাকা"],
-  },
-  {
-    q: "টালিপে QR-এ নিচের কোন কোন অ্যাপ থেকে পেমেন্ট নেয়া যায়?",
+    q: "টালিপে বাংলা QR-এ নিচের কোন কোন অ্যাপ থেকে পেমেন্ট নেয়া যায়?",
     multi: true,
     options: [
       { text: "নগদ", correct: true },
@@ -217,8 +213,19 @@ const QUIZ = [
     ],
   },
   {
-    q: "টালিপে QR কিভাবে পাওয়া যায়?",
-    options: ["আবেদন করার পর সবচেয়ে দ্রুত পাওয়া যায়।", "অফিসে গিয়ে আবেদন করে ৭ দিন পর"],
+    q: "টালিপে বাংলা QR কিভাবে পাওয়া যায়?",
+    options: ["টালিখাতা অ্যাপ থেকে আবেদন করার পর সবচেয়ে দ্রুত পাওয়া যায়।", "অফিসে গিয়ে আবেদন করে ৭ দিন পর"],
+  },
+  {
+    q: "টালিপে বাংলা QR এ কি কি সুবিধাগুলো আছে?",
+    multi: true,
+    options: [
+      { text: "পেমেন্ট নেয়ার সাথে সাথে টাকা ট্রান্সফার করা যায় NPSB এর মাধ্যমে", correct: true },
+      { text: "যেকোন ব্যাংক একাউন্টে, Visa কার্ডে, MFS-এ ট্রান্সফার করা যায়", correct: true },
+      { text: "ছুটির দিনেও ট্রান্সফার করা যায়", correct: true },
+      { text: "সার্ভিস চার্জ মাত্র ৯ টাকা", correct: true },
+      { text: "QR কোড নিতে ট্রেড লাইসেন্স লাগে না", correct: true },
+    ],
   },
 ];
 
@@ -325,38 +332,22 @@ function showRepeat(mobile) {
     reg.innerHTML = "আপনি টালিখাতা রেজিস্ট্রেশন <b>করেননি</b>। জিততে হলে ডাউনলোড ও রেজিস্ট্রেশন করুন:";
     dl.hidden = false;
   }
-  renderSchedule("rpSchedule");
-  renderLeaderboard();
-  renderWinners();
   show("repeat");
 }
 
-/* ============= schedule / leaderboard / winners renderers ============ */
-function fmtScheduleDate(iso) {
-  const d = new Date(iso);
-  let h = d.getHours(); const ampm = h >= 12 ? "PM" : "AM"; h = h % 12 || 12;
-  const mm = String(d.getMinutes()).padStart(2, "0");
-  return `${toBn(d.getDate())} ${BN_MONTHS[d.getMonth()]} ${toBn(d.getFullYear())}, ${toBn(h)}:${toBn(mm)} ${ampm}`;
-}
-function renderSchedule(elId) {
-  const el = $("#" + elId);
-  if (!el) return;
-  el.innerHTML =
-    `<span><b>শুরু:</b> ${fmtScheduleDate(CONFIG.campaignStart)}</span>` +
-    `<span><b>শেষ:</b> ${fmtScheduleDate(CONFIG.campaignEnd)}</span>`;
-}
+/* ================== leaderboard / winners (tables) ================== */
 function renderLeaderboard() {
   const box = $("#leaderboard");
   if (!box) return;
   const rows = API.leaderboard(dayKeyOf(Date.now()), 10);
-  if (!rows.length) { box.innerHTML = '<div class="lb-empty">আজ এখনো কোনো অংশগ্রহণকারী নেই।</div>'; return; }
-  box.innerHTML = rows.map((p, i) => `
-    <div class="lb-row">
-      <span class="lb-rank">${toBn(i + 1)}</span>
-      <span class="lb-name">${maskMobile(p.mobile)}</span>
-      <span class="lb-ref">${toBn(p.referredInstalls || 0)} রেফার</span>
-      <span class="lb-time">${fmtDuration(p.bestTimeMs)}</span>
-    </div>`).join("");
+  const head = `<table class="data-table"><thead><tr>
+      <th>ক্রমিক নং</th><th>মোবাইল নম্বর</th><th>টালিখাতা রেজিস্ট্রেশন</th><th>উত্তর দেয়ার সময়</th>
+    </tr></thead><tbody>`;
+  const body = rows.length
+    ? rows.map((p, i) =>
+        `<tr><td>${toBn(i + 1)}</td><td>${maskMobile(p.mobile)}</td><td>${toBn(p.referredInstalls || 0)}</td><td>${fmtDuration(p.bestTimeMs)}</td></tr>`).join("")
+    : `<tr><td colspan="4" class="tbl-empty">আজ এখনো কোনো অংশগ্রহণকারী নেই।</td></tr>`;
+  box.innerHTML = head + body + `</tbody></table>`;
 }
 function fmtWinDate(ymd) {
   const [y, m, d] = ymd.split("-").map(Number);
@@ -365,18 +356,14 @@ function fmtWinDate(ymd) {
 function renderWinners() {
   const box = $("#winnersList");
   if (!box) return;
-  if (!CONFIG.winners.length) {
-    box.innerHTML = '<div class="lb-empty">ক্যাম্পেইনের দ্বিতীয় দিন থেকে বিজয়ীদের নাম প্রকাশ করা হবে।</div>';
-    return;
-  }
-  box.innerHTML = CONFIG.winners.map((w) => `
-    <div class="winner-row">
-      <div class="winner-photo">${w.photo ? `<img src="${w.photo}" alt="">` : "👤"}</div>
-      <div class="winner-info">
-        <div class="winner-name">${w.name} <span class="winner-badge">🏆</span></div>
-        <div class="winner-meta">${w.district} · ${fmtWinDate(w.date)}</div>
-      </div>
-    </div>`).join("");
+  const head = `<table class="data-table"><thead><tr>
+      <th>তারিখ</th><th>নাম</th><th>জেলা</th><th>টালিখাতা রেজিস্ট্রেশন</th><th>উত্তর দেয়ার সময়</th>
+    </tr></thead><tbody>`;
+  const body = CONFIG.winners.length
+    ? CONFIG.winners.map((w) =>
+        `<tr><td>${fmtWinDate(w.date)}</td><td>${w.name}</td><td>${w.district}</td><td>${toBn(w.registrations || 0)}</td><td>${w.time || "—"}</td></tr>`).join("")
+    : `<tr><td colspan="5" class="tbl-empty">ক্যাম্পেইনের দ্বিতীয় দিন থেকে বিজয়ীদের নাম প্রকাশ করা হবে।</td></tr>`;
+  box.innerHTML = head + body + `</tbody></table>`;
 }
 
 /* ============================ PROFESSION ============================ */
@@ -409,7 +396,7 @@ function preselectProfession(name) {
 function professionNext() {
   if (!state.profession) return;
   API.register(state.mobile, state.profession);
-  show("steps");   // show the three campaign steps before the quiz
+  show("qrinfo");   // TallyKhata UI + QR sticker, then the three campaign steps
 }
 
 /* =============================== QUIZ =============================== */
@@ -488,6 +475,7 @@ function answer(correct) {
     state.lastQuizMs = Date.now() - state.quizStart;
     API.recordQuizTime(state.mobile, state.lastQuizMs);
     $("#correctTime").textContent = fmtDuration(state.lastQuizMs);
+    $("#correctNextBtn").disabled = true;   // re-locked until WhatsApp share
     show("correct");
   }
 }
@@ -525,6 +513,9 @@ function shareFromCorrect() {
   doShare();
   const p = API.getParticipant(state.mobile);
   API.update(state.mobile, { shares: (p ? p.shares || 0 : 0) + 1 });
+  // unlock the "পরবর্তী" button once the participant has shared on WhatsApp
+  const next = $("#correctNextBtn");
+  if (next) next.disabled = false;
 }
 
 /* ============================= DOWNLOAD ============================= */
@@ -538,6 +529,9 @@ function buildDownloadUrl() {
 function onDownloadTap() {
   window.open(buildDownloadUrl(), "_blank");
   state.downloaded = true;
+  // unlock the "জমা দিন" button once the download link has been tapped
+  const finalBtn = $("#finalBtn");
+  if (finalBtn) finalBtn.disabled = false;
 }
 function finish() {
   API.confirmInstall(state.mobile, state.inviterCode);
@@ -564,8 +558,9 @@ const ACTIONS = {
   "profession-next": professionNext,
   "quiz-confirm": quizConfirm,
   "retry-quiz": retryQuiz,
+  "qrinfo-next": () => show("steps"),
   "steps-next": startQuiz,
-  "correct-next": () => show("download"),
+  "correct-next": () => { $("#finalBtn").disabled = true; show("download"); },
   "finish": finish,
   "reshare-whatsapp": reshareWhatsapp,
   "goto-home": () => show("intro"),
@@ -589,7 +584,8 @@ function init() {
   $("#termsCheck").addEventListener("change", refreshStartGate);
   $("#mobileInput").addEventListener("keydown", (e) => { if (e.key === "Enter") submitMobile(); });
 
-  renderSchedule("introSchedule");
+  renderLeaderboard();
+  renderWinners();
   show("intro");
 }
 

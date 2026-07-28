@@ -437,7 +437,7 @@ h2.hl { font-size: 24px; margin: 6px 0 16px; }
 }
 
 /* ---------- intro creative + terms ---------- */
-.hero-creative { width: 100%; max-width: 380px; border-radius: 14px; margin: 4px auto 14px; display: block; }
+.hero-creative { width: 100%; max-width: 100%; border-radius: 14px; margin: 4px auto 14px; display: block; }
 .intro-lead { font-size: 15.5px; line-height: 1.55; color: var(--tk-ink); text-align: center; margin: 0 0 16px; }
 .terms-check {
   display: flex; align-items: flex-start; gap: 10px;
@@ -542,37 +542,53 @@ h2.hl { font-size: 24px; margin: 6px 0 16px; }
 .section-block { width: 100%; margin: 14px 0 4px; }
 .section-title { font-size: 15px; font-weight: 700; color: var(--tk-red); text-align: center; margin: 0 0 10px; }
 
-.leaderboard, .winners {
-  background: #fff; border: 1px solid rgba(216,31,38,.2); border-radius: 12px; overflow: hidden;
+/* leaderboard / winners tables */
+.table-wrap {
+  background: #fff; border: 1px solid rgba(216,31,38,.2); border-radius: 12px;
+  overflow-x: auto;
 }
-.lb-row {
-  display: flex; align-items: center; gap: 8px; padding: 9px 12px; font-size: 13.5px;
-  border-bottom: 1px solid #f3e2e6; text-align: left;
+.data-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.data-table th, .data-table td {
+  padding: 8px 8px; text-align: center; border-bottom: 1px solid #f3e2e6; line-height: 1.35;
 }
-.lb-row:last-child { border-bottom: none; }
-.lb-rank {
-  width: 22px; height: 22px; flex-shrink: 0; border-radius: 50%;
-  background: var(--tk-gold); color: var(--tk-red); font-weight: 700; font-size: 12px;
-  display: grid; place-items: center;
+.data-table thead th {
+  background: var(--tk-red); color: #fff; font-weight: 700; font-size: 12px; white-space: nowrap;
 }
-.lb-name { flex: 1; color: #1a1a1a; font-weight: 600; }
-.lb-ref { color: var(--tk-red); font-weight: 700; white-space: nowrap; }
-.lb-time { color: var(--tk-muted); white-space: nowrap; min-width: 42px; text-align: right; }
-.lb-empty { padding: 14px; text-align: center; font-size: 13.5px; color: var(--tk-muted); }
+.data-table tbody tr:last-child td { border-bottom: none; }
+.data-table tbody td { color: #1a1a1a; }
+.tbl-empty { color: var(--tk-muted); padding: 14px 10px; }
 
-.winner-row {
-  display: flex; align-items: center; gap: 12px; padding: 10px 12px; text-align: left;
-  border-bottom: 1px solid #f3e2e6;
+/* QR sticker interstitial image */
+.qr-sticker { width: 100%; max-width: 360px; height: auto; margin: 6px auto 14px; display: block; }
+
+/* Foodpanda-style delivery timeline (win conditions) */
+.timeline { width: 100%; margin: 10px 0 14px; }
+.tl-item {
+  position: relative; display: flex; align-items: flex-start; gap: 14px;
+  padding: 0 0 22px 0; text-align: left;
 }
-.winner-row:last-child { border-bottom: none; }
-.winner-photo {
-  width: 44px; height: 44px; flex-shrink: 0; border-radius: 50%; overflow: hidden;
-  background: var(--tk-bg-2); display: grid; place-items: center; font-size: 22px;
+.tl-item:last-child { padding-bottom: 0; }
+/* connecting line */
+.tl-item:not(:last-child)::before {
+  content: ""; position: absolute; left: 13px; top: 28px; bottom: 0; width: 2px; background: #e9c9d1;
 }
-.winner-photo img { width: 100%; height: 100%; object-fit: cover; }
-.winner-name { font-weight: 700; color: #1a1a1a; font-size: 15px; }
-.winner-badge { font-size: 15px; }
-.winner-meta { font-size: 12.5px; color: var(--tk-muted); margin-top: 1px; }
+.tl-node {
+  width: 28px; height: 28px; flex-shrink: 0; border-radius: 50%;
+  border: 2px solid #d9b8c0; background: #fff;
+  display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 15px; z-index: 1;
+}
+.tl-label { font-size: 15px; line-height: 1.45; color: #1a1a1a; padding-top: 3px; }
+.tl-item.done .tl-node { background: #25a244; border-color: #25a244; }
+.tl-item.done .tl-label { color: #1a1a1a; }
+.tl-item.active .tl-node {
+  background: var(--tk-red); border-color: var(--tk-red);
+  animation: tl-blink 1s ease-in-out infinite;
+}
+.tl-item.active .tl-label { font-weight: 700; color: var(--tk-red); }
+@keyframes tl-blink {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(216,31,38,.55); opacity: 1; }
+  50%      { box-shadow: 0 0 0 8px rgba(216,31,38,0); opacity: .55; }
+}
 
 @media (max-width: 360px) {
   h1.hl { font-size: 23px; }
