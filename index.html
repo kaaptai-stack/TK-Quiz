@@ -30,9 +30,6 @@
 <body>
   <div class="app" id="app">
 
-    <!-- step counter (top-right) -->
-    <div class="step-counter" id="stepCounter" hidden></div>
-
     <!-- ================= SCREEN 1: INTRO ================= -->
     <section class="screen active" data-screen="intro">
       <div class="screen-body intro">
@@ -46,17 +43,53 @@
 
         <button class="btn btn-primary" id="startBtn" data-action="start" disabled>আমি আগ্রহী</button>
 
-        <!-- today's top 10 -->
+        <button class="btn-text" data-action="goto-list">🏅 শীর্ষ অংশগ্রহণকারী ও বিজয়ীগণের তালিকা</button>
+      </div>
+    </section>
+
+    <!-- ================= LIST: leaderboards + winners ================= -->
+    <section class="screen" data-screen="list">
+      <div class="screen-body">
+        <h2 class="hl center-text">শীর্ষ অংশগ্রহণকারী ও বিজয়ীগণের তালিকা</h2>
+
+        <!-- prize structure -->
         <div class="section-block">
-          <div class="section-title">🏅 আজকের শীর্ষ ১০ অংশগ্রহণকারী</div>
-          <div class="table-wrap" id="leaderboard"></div>
+          <div class="section-title">🎁 পুরস্কার কাঠামো</div>
+          <div class="prize-cards">
+            <div class="prize-card">
+              <div class="prize-head">দৈনিক বিজয়ী — ১০ জন</div>
+              <p>প্রত্যেকে পাবেন <b>৫০ টাকা</b> মোবাইল রিচার্জ। সবচেয়ে কম উত্তর দেয়ার সময়ের ভিত্তিতে নির্বাচিত।</p>
+            </div>
+            <div class="prize-card">
+              <div class="prize-head">সাপ্তাহিক বিজয়ী — ৩ জন</div>
+              <p>প্রত্যেকে পাবেন <b>১,০০০ টাকা</b> টালিপে ওয়ালেটে। স্কোর অনুযায়ী নির্বাচিত।</p>
+            </div>
+            <div class="prize-card">
+              <div class="prize-head">মেগা বিজয়ী — ১ জন</div>
+              <p>পাবেন <b>১০,০০০ টাকা</b> টালিপে ওয়ালেটে। স্কোর অনুযায়ী নির্বাচিত।</p>
+            </div>
+          </div>
+          <p class="reminder">স্কোর: প্রতি টালিখাতা রেজিস্ট্রেশনে ১০ পয়েন্ট; ১ সেকেন্ডে ৩০০ পয়েন্ট, প্রতি সেকেন্ড দেরিতে ১ পয়েন্ট কমবে। সর্বোচ্চ উত্তর দেয়ার সময় ৫ মিনিট, অন্যথায় আবার শুরু হবে।</p>
         </div>
 
-        <!-- winners -->
+        <div class="section-block">
+          <div class="section-title">আজকের শীর্ষ ১০ অংশগ্রহণকারী</div>
+          <div class="table-wrap" id="lbToday"></div>
+        </div>
+        <div class="section-block">
+          <div class="section-title">সাপ্তাহিক শীর্ষ ১০ অংশগ্রহণকারী</div>
+          <div class="table-wrap" id="lbWeek"></div>
+        </div>
+        <div class="section-block">
+          <div class="section-title">এই পর্যন্ত শীর্ষ ১০ অংশগ্রহণকারী</div>
+          <div class="table-wrap" id="lbAll"></div>
+        </div>
         <div class="section-block">
           <div class="section-title">🏆 বিজয়ীগণ</div>
           <div class="table-wrap" id="winnersList"></div>
         </div>
+
+        <button class="btn btn-primary btn-narrow mt-auto" data-action="list-back">← ফিরে যান</button>
       </div>
     </section>
 
@@ -151,14 +184,14 @@
             <span class="step-num">২</span>
             <div>
               <div class="step-head">দ্বিতীয় ধাপ</div>
-              <p>টালিখাতা অ্যাপ রেফার করুন ব্যবসায়ী বন্ধুকে হোয়াটসঅ্যাপের মাধ্যমে। ন্যূনতম ১০ জনকে টালিখাতা অ্যাপ রেফার করুন।</p>
+              <p>নিজের টালিখাতা অ্যাপ রেজিস্ট্রেশন করা না থাকলে ডাউনলোড করুন ও রেজিস্ট্রেশন করুন।</p>
             </div>
           </div>
           <div class="step-card">
             <span class="step-num">৩</span>
             <div>
               <div class="step-head">তৃতীয় ধাপ</div>
-              <p>নিজের টালিখাতা অ্যাপ রেজিস্ট্রেশন করা না থাকলে ডাউনলোড করুন ও রেজিস্ট্রেশন করুন।</p>
+              <p>টালিখাতা অ্যাপ রেফার করুন ব্যবসায়ী বন্ধুকে হোয়াটসঅ্যাপের মাধ্যমে। ন্যূনতম ৩ জনকে টালিখাতা অ্যাপ রেফার করুন ও টালিখাতা অ্যাপ রেজিস্ট্রেশন করে দিন।</p>
             </div>
           </div>
         </div>
@@ -193,12 +226,31 @@
       </div>
     </section>
 
-    <!-- ================= SCREEN 9: CORRECT + CONDITIONS + SHARE ================= -->
-    <section class="screen" data-screen="correct">
+    <!-- ================= DOWNLOAD (first after quiz) ================= -->
+    <section class="screen" data-screen="download">
       <div class="screen-body center">
         <div class="big-icon ok">✓</div>
         <p class="lead strong">আপনার উত্তর সঠিক হয়েছে!</p>
         <p class="lead">আপনার সময়: <b id="correctTime">—</b></p>
+
+        <h2 class="hl center-text">টালিখাতা অ্যাপ ডাউনলোড করুন</h2>
+        <p class="lead">নিজের টালিখাতা অ্যাপ রেজিস্ট্রেশন করা না থাকলে ডাউনলোড ও রেজিস্ট্রেশন করুন।</p>
+
+        <a class="download-card" id="downloadBtn" data-action="download" href="https://www.tallykhata.com/app" target="_blank" rel="noopener">
+          <img class="dl-icon" src="assets/tk-logo-vertical.png" alt="টালিখাতা" />
+          <span class="dl-store">
+            <b>টালিখাতা অ্যাপ ডাউনলোড করুন</b>
+          </span>
+        </a>
+
+        <button class="btn btn-primary btn-narrow mt-auto" id="dlNextBtn" data-action="download-next" disabled>পরবর্তী</button>
+      </div>
+    </section>
+
+    <!-- ================= WHATSAPP SHARE (second after quiz) ================= -->
+    <section class="screen" data-screen="share">
+      <div class="screen-body center">
+        <h2 class="hl center-text">বন্ধুদের রেফার করুন</h2>
 
         <div class="section-title">ক্যাম্পেইনে জেতার শর্তাবলী</div>
         <div class="timeline">
@@ -206,13 +258,13 @@
             <span class="tl-node">✓</span>
             <span class="tl-label">দ্রুততম সময়ে সবগুলোর সঠিক উত্তর</span>
           </div>
+          <div class="tl-item done">
+            <span class="tl-node">✓</span>
+            <span class="tl-label">নিজের টালিখাতা রেজিস্ট্রেশন</span>
+          </div>
           <div class="tl-item active">
             <span class="tl-node"></span>
-            <span class="tl-label">ন্যূনতম ৩ জনকে টালিখাতা রেফার করে ইন্সটল ও রেজিস্ট্রেশন করে দেয়া</span>
-          </div>
-          <div class="tl-item">
-            <span class="tl-node"></span>
-            <span class="tl-label">নিজের টালিখাতা রেজিস্ট্রেশন থাকতে হবে</span>
+            <span class="tl-label">ন্যূনতম ৩ জনকে টালিখাতা রেফার করে রেজিস্ট্রেশন করে দেয়া</span>
           </div>
         </div>
 
@@ -224,24 +276,6 @@
             <span>WhatsApp-এ শেয়ার করুন</span>
           </button>
         </div>
-
-        <button class="btn btn-primary btn-narrow mt-auto" id="correctNextBtn" data-action="correct-next" disabled>পরবর্তী</button>
-      </div>
-    </section>
-
-    <!-- ================= SCREEN 10: DOWNLOAD ================= -->
-    <section class="screen" data-screen="download">
-      <div class="screen-body center">
-        <img class="app-shot" src="assets/app-preview.png" alt="টালিখাতা অ্যাপ" onerror="this.style.display='none'"/>
-        <h2 class="hl center-text">শেষ ধাপ</h2>
-        <p class="lead strong">টালিখাতা অ্যাপ ডাউনলোড ও রেজিস্ট্রেশন করুন।</p>
-
-        <a class="download-card" id="downloadBtn" data-action="download" href="https://www.tallykhata.com/app" target="_blank" rel="noopener">
-          <img class="dl-icon" src="assets/tk-logo-vertical.png" alt="টালিখাতা" />
-          <span class="dl-store">
-            <b>টালিখাতা অ্যাপ ডাউনলোড করুন</b>
-          </span>
-        </a>
 
         <button class="btn btn-primary btn-narrow mt-auto" id="finalBtn" data-action="finish" disabled>জমা দিন</button>
       </div>
@@ -273,9 +307,11 @@
       <h3>শর্তাবলী ও নিয়মাবলী</h3>
       <ul>
         <li>সকল ধাপ সফলভাবে সম্পন্ন করতে হবে।</li>
-        <li>বিজয়ী হতে কমপক্ষে ৩ জনকে রেফার করে টালিখাতা ইনস্টল ও রেজিস্ট্রেশন করাতে হবে। সবচেয়ে বেশি রেফারেল রেজিস্ট্রেশন ও সবচেয়ে কম সময়ের রেকর্ডধারীরাই বিজয়ী হবেন।</li>
-        <li>প্রতিদিন ১ জন পুরষ্কার পাবেন ক্যাম্পেইন চলাকালীন সময়ে।</li>
-        <li>পুরস্কার টালিপে একাউন্টে জমা করা হবে।</li>
+        <li><b>দৈনিক বিজয়ী:</b> প্রতিদিন ১০ জন — প্রত্যেকে ৫০ টাকা মোবাইল রিচার্জ। সবচেয়ে কম উত্তর দেয়ার সময়ের ভিত্তিতে।</li>
+        <li><b>সাপ্তাহিক বিজয়ী:</b> ৩ জন — প্রত্যেকে ১,০০০ টাকা টালিপে ওয়ালেটে। স্কোর অনুযায়ী।</li>
+        <li><b>মেগা বিজয়ী:</b> ১ জন — ১০,০০০ টাকা টালিপে ওয়ালেটে। স্কোর অনুযায়ী।</li>
+        <li>স্কোর: প্রতি টালিখাতা রেজিস্ট্রেশনে ১০ পয়েন্ট; ১ সেকেন্ডে ৩০০ পয়েন্ট, প্রতি সেকেন্ড দেরিতে ১ পয়েন্ট কমবে। সর্বোচ্চ উত্তর দেয়ার সময় ৫ মিনিট, অন্যথায় আবার শুরু হবে।</li>
+        <li>স্কোরিং-এর জন্য কমপক্ষে ৩ জনকে রেফার করে টালিখাতা রেজিস্ট্রেশন করাতে হবে।</li>
         <li>পুরস্কার ঘোষণা ও বিতরণ টালিখাতার অফিসিয়াল ফেসবুক পেজের মাধ্যমে জানানো হবে।</li>
         <li>টালিখাতা কর্তৃপক্ষ যেকোন সময় কোন ধরণের কারণ দর্শানো ছাড়া ও পূর্ববর্তী নোটিশ ছাড়া এই ক্যাম্পেইন পরিবর্তন, পরিবর্ধন, পরিমার্জন, বাতিল করতে পারবে।</li>
       </ul>

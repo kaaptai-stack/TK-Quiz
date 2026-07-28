@@ -542,6 +542,15 @@ h2.hl { font-size: 24px; margin: 6px 0 16px; }
 .section-block { width: 100%; margin: 14px 0 4px; }
 .section-title { font-size: 15px; font-weight: 700; color: var(--tk-red); text-align: center; margin: 0 0 10px; }
 
+/* prize structure cards */
+.prize-cards { display: flex; flex-direction: column; gap: 10px; }
+.prize-card {
+  background: #fff; border: 1px solid rgba(216,31,38,.2); border-left: 4px solid var(--tk-red);
+  border-radius: 10px; padding: 11px 14px; text-align: left;
+}
+.prize-head { font-weight: 700; color: var(--tk-red); font-size: 15px; margin-bottom: 3px; }
+.prize-card p { margin: 0; font-size: 14px; line-height: 1.5; color: #1a1a1a; }
+
 /* leaderboard / winners tables */
 .table-wrap {
   background: #fff; border: 1px solid rgba(216,31,38,.2); border-radius: 12px;

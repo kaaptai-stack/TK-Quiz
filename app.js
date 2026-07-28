@@ -158,16 +158,24 @@ const API = (() => {
       };
     },
 
-    /** Top-N participants for a given day (default today), ranked by
-        referral installs (desc) then best time (asc). */
-    leaderboard(dayKey, limit = 10) {
+    /** Top-N participants for a scope:
+        'today' -> completed today, ranked by shortest time (daily winner rule)
+        'week'  -> last 7 days, ranked by score (weekly winner rule)
+        'all'   -> whole campaign, ranked by score (mega winner rule) */
+    leaderboard(scope, limit = 10) {
       const db = load();
-      return Object.values(db.participants)
-        .filter((p) => p.bestTimeMs != null && (!dayKey || dayKeyOf(p.bestAt) === dayKey))
-        .sort((a, b) =>
-          (b.referredInstalls || 0) - (a.referredInstalls || 0) ||
-          (a.bestTimeMs || Infinity) - (b.bestTimeMs || Infinity))
-        .slice(0, limit);
+      const now = Date.now();
+      let list = Object.values(db.participants).filter((p) => p.bestTimeMs != null);
+      if (scope === "today") {
+        const dk = dayKeyOf(now);
+        list = list.filter((p) => dayKeyOf(p.bestAt) === dk).sort((a, b) => a.bestTimeMs - b.bestTimeMs);
+      } else if (scope === "week") {
+        const weekAgo = now - 7 * 24 * 3600 * 1000;
+        list = list.filter((p) => p.bestAt >= weekAgo).sort((a, b) => scoreOf(b) - scoreOf(a));
+      } else {
+        list = list.sort((a, b) => scoreOf(b) - scoreOf(a));
+      }
+      return list.slice(0, limit);
     },
   };
 })();
@@ -181,6 +189,14 @@ function dayKeyOf(ts) {
 }
 function maskMobile(m) {
   return m && m.length === 11 ? m.slice(0, 5) + "***" + m.slice(8) : m;
+}
+// Score = 10 points per TallyKhata registration + time score (300 pts at 1s,
+// minus 1 pt per extra second). Used for weekly & mega winner ranking.
+function scoreOf(p) {
+  if (p.bestTimeMs == null) return -1;
+  const sec = Math.round(p.bestTimeMs / 1000);
+  const timeScore = Math.max(0, 300 - (sec - 1));
+  return (p.referredInstalls || 0) * 10 + timeScore;
 }
 
 /* =====================================================================
@@ -263,10 +279,10 @@ function stepOf(screen) {
     case "profession": return 3;
     case "quiz": return 4 + state.quizIndex;     // q1..q5 -> 4..8
     case "wrong": return 4 + state.quizIndex;
-    case "correct": return 9;
-    case "download": return 10;
+    case "download": return 9;
+    case "share": return 10;
     case "final": return 10;
-    default: return null;                         // repeat -> no counter
+    default: return null;                         // interstitials / info screens
   }
 }
 
@@ -277,15 +293,12 @@ function show(screen) {
   $("#app").scrollTop = 0;
   $$(".screen-body").forEach((b) => (b.scrollTop = 0));
 
+  // progress bar (step counter removed)
   const step = stepOf(screen);
-  const counter = $("#stepCounter");
   if (step) {
-    counter.hidden = false;
-    counter.textContent = `${toBn(step)}/${toBn(CONFIG.totalSteps)}`;
     $("#progressBar").style.width = ((step - 1) / (CONFIG.totalSteps - 1)) * 100 + "%";
     $("#progressWrap").style.visibility = "visible";
   } else {
-    counter.hidden = true;
     $("#progressWrap").style.visibility = "hidden";
   }
 
@@ -336,18 +349,24 @@ function showRepeat(mobile) {
 }
 
 /* ================== leaderboard / winners (tables) ================== */
-function renderLeaderboard() {
-  const box = $("#leaderboard");
+function renderLeaderboard(scope, elId, emptyMsg) {
+  const box = $("#" + elId);
   if (!box) return;
-  const rows = API.leaderboard(dayKeyOf(Date.now()), 10);
+  const rows = API.leaderboard(scope, 10);
   const head = `<table class="data-table"><thead><tr>
       <th>ক্রমিক নং</th><th>মোবাইল নম্বর</th><th>টালিখাতা রেজিস্ট্রেশন</th><th>উত্তর দেয়ার সময়</th>
     </tr></thead><tbody>`;
   const body = rows.length
     ? rows.map((p, i) =>
         `<tr><td>${toBn(i + 1)}</td><td>${maskMobile(p.mobile)}</td><td>${toBn(p.referredInstalls || 0)}</td><td>${fmtDuration(p.bestTimeMs)}</td></tr>`).join("")
-    : `<tr><td colspan="4" class="tbl-empty">আজ এখনো কোনো অংশগ্রহণকারী নেই।</td></tr>`;
+    : `<tr><td colspan="4" class="tbl-empty">${emptyMsg}</td></tr>`;
   box.innerHTML = head + body + `</tbody></table>`;
+}
+function renderAllLeaderboards() {
+  renderLeaderboard("today", "lbToday", "আজ এখনো কোনো অংশগ্রহণকারী নেই।");
+  renderLeaderboard("week", "lbWeek", "এই সপ্তাহে এখনো কোনো অংশগ্রহণকারী নেই।");
+  renderLeaderboard("all", "lbAll", "এখনো কোনো অংশগ্রহণকারী নেই।");
+  renderWinners();
 }
 function fmtWinDate(ymd) {
   const [y, m, d] = ymd.split("-").map(Number);
@@ -407,9 +426,19 @@ function startQuiz() {
   startTimer();
 }
 
+const MAX_QUIZ_MS = 5 * 60 * 1000;   // max answering time: 5 minutes, else restart
 function startTimer() {
   stopTimer();
-  const tick = () => { $("#quizTimer").textContent = "⏱ " + fmtDuration(Date.now() - state.quizStart); };
+  const tick = () => {
+    const elapsed = Date.now() - state.quizStart;
+    if (elapsed >= MAX_QUIZ_MS) {
+      stopTimer();
+      toast("৫ মিনিট পার হয়ে গেছে — কুইজ আবার শুরু হচ্ছে।");
+      retryQuiz();
+      return;
+    }
+    $("#quizTimer").textContent = "⏱ " + fmtDuration(elapsed);
+  };
   tick();
   state.timerId = setInterval(tick, 1000);
 }
@@ -475,8 +504,9 @@ function answer(correct) {
     state.lastQuizMs = Date.now() - state.quizStart;
     API.recordQuizTime(state.mobile, state.lastQuizMs);
     $("#correctTime").textContent = fmtDuration(state.lastQuizMs);
-    $("#correctNextBtn").disabled = true;   // re-locked until WhatsApp share
-    show("correct");
+    // flow: quiz -> download (this screen) -> WhatsApp share -> final
+    $("#dlNextBtn").disabled = true;        // re-locked until the app download is tapped
+    show("download");
   }
 }
 
@@ -513,9 +543,9 @@ function shareFromCorrect() {
   doShare();
   const p = API.getParticipant(state.mobile);
   API.update(state.mobile, { shares: (p ? p.shares || 0 : 0) + 1 });
-  // unlock the "পরবর্তী" button once the participant has shared on WhatsApp
-  const next = $("#correctNextBtn");
-  if (next) next.disabled = false;
+  // unlock the "জমা দিন" button once the participant has shared on WhatsApp
+  const finalBtn = $("#finalBtn");
+  if (finalBtn) finalBtn.disabled = false;
 }
 
 /* ============================= DOWNLOAD ============================= */
@@ -529,9 +559,9 @@ function buildDownloadUrl() {
 function onDownloadTap() {
   window.open(buildDownloadUrl(), "_blank");
   state.downloaded = true;
-  // unlock the "জমা দিন" button once the download link has been tapped
-  const finalBtn = $("#finalBtn");
-  if (finalBtn) finalBtn.disabled = false;
+  // unlock the "পরবর্তী" button once the app download link has been tapped
+  const next = $("#dlNextBtn");
+  if (next) next.disabled = false;
 }
 function finish() {
   API.confirmInstall(state.mobile, state.inviterCode);
@@ -560,10 +590,12 @@ const ACTIONS = {
   "retry-quiz": retryQuiz,
   "qrinfo-next": () => show("steps"),
   "steps-next": startQuiz,
-  "correct-next": () => { $("#finalBtn").disabled = true; show("download"); },
+  "download-next": () => { $("#finalBtn").disabled = true; show("share"); },
   "finish": finish,
   "reshare-whatsapp": reshareWhatsapp,
   "goto-home": () => show("intro"),
+  "goto-list": () => { renderAllLeaderboards(); show("list"); },
+  "list-back": () => show("intro"),
 };
 
 /* ============================== INIT =============================== */
@@ -584,8 +616,6 @@ function init() {
   $("#termsCheck").addEventListener("change", refreshStartGate);
   $("#mobileInput").addEventListener("keydown", (e) => { if (e.key === "Enter") submitMobile(); });
 
-  renderLeaderboard();
-  renderWinners();
   show("intro");
 }
 
