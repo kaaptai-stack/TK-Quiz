@@ -34,26 +34,29 @@
     <section class="screen active" data-screen="intro">
       <div class="screen-body intro">
         <img class="hero-creative" src="assets/cover.png" alt="শেয়ার করুন, পুরস্কার জিতুন — প্রতিদিন ১,০০০ টাকা ক্যাশ" />
-        <p class="intro-lead">কুইজের সব প্রশ্নের সঠিক উত্তর দিন আর টালিখাতা রেফার করে জিতে নিন আকর্ষণীয় পুরস্কার।</p>
 
-        <label class="field-label" for="mobileInput">আপনার মোবাইল নম্বর</label>
-        <div class="phone-field">
-          <span class="phone-prefix">+88</span>
-          <input id="mobileInput" type="tel" inputmode="numeric" maxlength="11" placeholder="01XXXXXXXXX" autocomplete="tel" />
+        <div class="intro-card">
+          <label class="field-label" for="mobileInput">আপনার মোবাইল নম্বর</label>
+          <div class="phone-field">
+            <span class="phone-prefix">+88</span>
+            <input id="mobileInput" type="tel" inputmode="numeric" maxlength="11" placeholder="01XXXXXXXXX" autocomplete="tel" />
+          </div>
+
+          <label class="field-label mt14">আপনার পেশা</label>
+          <div class="profession-grid grid4" id="professionGrid"><!-- filled by JS --></div>
+
+          <label class="terms-check">
+            <input type="checkbox" id="termsCheck" />
+            <span>আমি <a href="#" data-action="open-terms">শর্তাবলী ও নিয়মাবলী</a> পড়েছি ও সম্মত আছি।</span>
+          </label>
+
+          <button class="btn btn-primary" id="startBtn" data-action="start" disabled>আমি আগ্রহী</button>
         </div>
 
-        <label class="field-label mt12">আপনার পেশা</label>
-        <div class="profession-grid grid4" id="professionGrid"><!-- filled by JS --></div>
-
-        <label class="terms-check">
-          <input type="checkbox" id="termsCheck" />
-          <span>আমি <a href="#" data-action="open-terms">শর্তাবলী ও নিয়মাবলী</a> পড়েছি ও সম্মত আছি।</span>
-        </label>
-
-        <button class="btn btn-primary" id="startBtn" data-action="start" disabled>আমি আগ্রহী</button>
-
-        <button class="btn-text" data-action="goto-list">🏅 শীর্ষ অংশগ্রহণকারী ও বিজয়ীগণের তালিকা</button>
-        <button class="btn-text" data-action="goto-performance">📊 আমার পারফরমেন্স</button>
+        <div class="intro-links">
+          <button class="chip-link" data-action="goto-list">🏅 শীর্ষ তালিকা ও বিজয়ী</button>
+          <button class="chip-link" data-action="goto-performance">📊 আমার পারফরমেন্স</button>
+        </div>
       </div>
     </section>
 
