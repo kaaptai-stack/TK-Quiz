@@ -616,8 +616,20 @@ h2.hl { font-size: 24px; margin: 6px 0 16px; }
 .field-label.mt14 { margin-top: 16px; }
 .intro-card .phone-field { box-shadow: none; border-width: 1.5px; padding: 2px 16px; }
 .intro-card .phone-field input { font-size: 20px; padding: 10px 0; }
-.profession-grid.grid4 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 0; }
-.profession-grid.grid4 .prof-btn { padding: 12px; justify-content: center; }
+.profession-grid.grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 0; }
+.profession-grid.grid4 .prof-btn {
+  flex-direction: column;
+  gap: 5px;
+  padding: 10px 4px;
+  background: transparent;
+  box-shadow: none;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.25;
+}
+.profession-grid.grid4 .prof-icon { font-size: 20px; }
+.profession-grid.grid4 .prof-name { flex: none; }
+.profession-grid.grid4 .prof-btn.selected { background: #FAD4DF; }
 .intro-card .terms-check {
   margin-top: 16px; background: transparent; border: none; padding: 0; font-size: 14px;
 }
