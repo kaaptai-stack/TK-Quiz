@@ -250,7 +250,7 @@ const QUIZ = [
       { text: "যেকোন ব্যাংক একাউন্টে, Visa কার্ডে, MFS-এ ট্রান্সফার করা যায়", correct: true },
       { text: "ছুটির দিনেও ট্রান্সফার করা যায়", correct: true },
       { text: "সার্ভিস চার্জ মাত্র ৯ টাকা", correct: true },
-      { text: "উপরের একটিও নয়", correct: false },
+      { text: "এখানের একটিও সঠিক নয়।", correct: false },
     ],
   },
 ];
@@ -332,7 +332,7 @@ function startFlow() {
 /* ========================= MY PERFORMANCE ========================== */
 function showPerformance() {
   const m = normalizeMobile($("#mobileInput").value);
-  if (!isValidMobile(m)) { toast("আগে আপনার সঠিক মোবাইল নম্বর দিন।"); return; }
+  if (!isValidMobile(m)) { toast("পারফরমেন্স দেখতে আপনার মোবাইল নম্বর লিখুন।"); return; }
   state.mobile = m;
   const p = API.getParticipant(m);
   const btn = $("#perfBtn");
@@ -365,25 +365,27 @@ function perfParticipate() {
 }
 
 /* ================== leaderboard / winners (tables) ================== */
-function lbRow(p, rank, isMe) {
-  return `<tr class="${isMe ? "lb-me" : ""}">
-    <td>${toBn(rank)}</td><td>${maskMobile(p.mobile)}</td>
-    <td>${toBn(p.referredInstalls || 0)}</td><td>${fmtDuration(p.bestTimeMs)}</td>
-    <td>${toBn(scoreOf(p))}</td></tr>`;
+// Daily board ranks by time (no registration column); weekly & mega rank by
+// registration score (no time column).
+function lbCells(p, rank, daily) {
+  return daily
+    ? [toBn(rank), maskMobile(p.mobile), fmtDuration(p.bestTimeMs)]
+    : [toBn(rank), maskMobile(p.mobile), toBn(p.referredInstalls || 0), toBn(scoreOf(p))];
 }
 function renderLeaderboard(scope, elId, emptyMsg) {
   const box = $("#" + elId);
   if (!box) return;
+  const daily = scope === "daily";
+  const cols = daily ? ["ক্রম", "মোবাইল নম্বর", "সময়"] : ["ক্রম", "মোবাইল নম্বর", "রেজিস্ট্রেশন", "স্কোর"];
   const all = API.ranked(scope);
-  const head = `<table class="data-table"><thead><tr>
-      <th>ক্রম</th><th>মোবাইল নম্বর</th><th>রেজি.</th><th>সময়</th><th>স্কোর</th>
-    </tr></thead><tbody>`;
-  if (!all.length) { box.innerHTML = head + `<tr><td colspan="5" class="tbl-empty">${emptyMsg}</td></tr></tbody></table>`; return; }
-  let body = all.slice(0, 10).map((p, i) => lbRow(p, i + 1, p.mobile === state.mobile)).join("");
-  // if the current participant is outside the top 10, show their rank as an 11th row
-  if (state.mobile) {
+  const head = `<table class="data-table"><thead><tr>${cols.map((c) => `<th>${c}</th>`).join("")}</tr></thead><tbody>`;
+  const row = (p, rank, me) =>
+    `<tr class="${me ? "lb-me" : ""}">${lbCells(p, rank, daily).map((c) => `<td>${c}</td>`).join("")}</tr>`;
+  if (!all.length) { box.innerHTML = head + `<tr><td colspan="${cols.length}" class="tbl-empty">${emptyMsg}</td></tr></tbody></table>`; return; }
+  let body = all.slice(0, 10).map((p, i) => row(p, i + 1, p.mobile === state.mobile)).join("");
+  if (state.mobile) {   // current participant's own rank as an 11th row if outside top 10
     const idx = all.findIndex((p) => p.mobile === state.mobile);
-    if (idx >= 10) body += `<tr class="lb-sep"><td colspan="5">⋯</td></tr>` + lbRow(all[idx], idx + 1, true);
+    if (idx >= 10) body += `<tr class="lb-sep"><td colspan="${cols.length}">⋯</td></tr>` + row(all[idx], idx + 1, true);
   }
   box.innerHTML = head + body + `</tbody></table>`;
 }
