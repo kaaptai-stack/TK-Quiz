@@ -15,7 +15,7 @@ const CONFIG = {
   appStoreUrl: "https://www.tallykhata.com/app",
   fbPage: "https://www.facebook.com/TallyKhataApp",
   minReferralsToWin: 3,    // win condition reminder
-  totalSteps: 10,          // for the top-right step counter (X/১০)
+  totalSteps: 8,           // progress-bar denominator
   prizeBn: "১০,০০০",
 
   // Campaign schedule (calendar time). Edit these to the real dates.
@@ -97,6 +97,7 @@ const API = (() => {
           selfRegistered: false,
           referredInstalls: 0,
           completed: false,
+          plays: 0,
           createdAt: Date.now(),
         };
         db.codes[code] = mobile;
@@ -158,27 +159,39 @@ const API = (() => {
       };
     },
 
-    /** Top-N participants for a scope:
-        'today' -> completed today, ranked by shortest time (daily winner rule)
-        'week'  -> last 7 days, ranked by score (weekly winner rule)
-        'all'   -> whole campaign, ranked by score (mega winner rule) */
-    leaderboard(scope, limit = 10) {
+    /** Ranked participant list for a scope:
+        'daily'  -> completed today, ranked by shortest answer time (daily winner rule)
+        'weekly' -> current Sat–Fri week, ranked by registrations (weekly winner rule)
+        'mega'   -> whole campaign, ranked by registrations (mega winner rule)
+        Returns the FULL ranked list (caller slices to top 10 + self row). */
+    ranked(scope) {
       const db = load();
-      const now = Date.now();
       let list = Object.values(db.participants).filter((p) => p.bestTimeMs != null);
-      if (scope === "today") {
-        const dk = dayKeyOf(now);
+      if (scope === "daily") {
+        const dk = dayKeyOf(Date.now());
         list = list.filter((p) => dayKeyOf(p.bestAt) === dk).sort((a, b) => a.bestTimeMs - b.bestTimeMs);
-      } else if (scope === "week") {
-        const weekAgo = now - 7 * 24 * 3600 * 1000;
-        list = list.filter((p) => p.bestAt >= weekAgo).sort((a, b) => scoreOf(b) - scoreOf(a));
+      } else if (scope === "weekly") {
+        const start = weekStart(Date.now());
+        list = list.filter((p) => p.bestAt >= start).sort(byScoreThenTime);
       } else {
-        list = list.sort((a, b) => scoreOf(b) - scoreOf(a));
+        list = list.sort(byScoreThenTime);
       }
-      return list.slice(0, limit);
+      return list;
     },
   };
 })();
+
+function byScoreThenTime(a, b) {
+  return scoreOf(b) - scoreOf(a) || (a.bestTimeMs || Infinity) - (b.bestTimeMs || Infinity);
+}
+// Start (ms) of the current campaign week — weeks run Saturday→Friday.
+function weekStart(ts) {
+  const d = new Date(ts);
+  d.setHours(0, 0, 0, 0);
+  const back = (d.getDay() + 1) % 7;   // days since last Saturday (Sat=6 -> 0)
+  d.setDate(d.getDate() - back);
+  return d.getTime();
+}
 
 // local calendar day key "YYYY-MM-DD" for a timestamp
 function dayKeyOf(ts) {
@@ -190,13 +203,9 @@ function dayKeyOf(ts) {
 function maskMobile(m) {
   return m && m.length === 11 ? m.slice(0, 5) + "***" + m.slice(8) : m;
 }
-// Score = 10 points per TallyKhata registration + time score (300 pts at 1s,
-// minus 1 pt per extra second). Used for weekly & mega winner ranking.
+// Score = 100 points per TallyKhata registration (weekly & mega winner ranking).
 function scoreOf(p) {
-  if (p.bestTimeMs == null) return -1;
-  const sec = Math.round(p.bestTimeMs / 1000);
-  const timeScore = Math.max(0, 300 - (sec - 1));
-  return (p.referredInstalls || 0) * 10 + timeScore;
+  return (p.referredInstalls || 0) * 100;
 }
 
 /* =====================================================================
@@ -210,12 +219,13 @@ const QUIZ = [
     options: ["ব্যবসার বাকির হিসাব", "নিজের হিসাব"],
   },
   {
-    q: "বাকির হিসাবে কি কি সুবিধা পাওয়া যায়?",
+    q: "টালিখাতা অ্যাপে বাকির হিসাব রাখলে কি কি সুবিধা পাওয়া যায়?",
     multi: true,
     options: [
       { text: "এন্ট্রি করলেই মেসেজ যায়", correct: true },
       { text: "কাস্টমারের সাথে ভুল বোঝাবুঝি দূর হয়", correct: true },
       { text: "কার কাছে কত বাকি সব জানা যায়", correct: true },
+      { text: "লুডু গেমস খেলা যায়", correct: false },
     ],
   },
   {
@@ -226,6 +236,7 @@ const QUIZ = [
       { text: "বিকাশ", correct: true },
       { text: "রকেট", correct: true },
       { text: "সব ব্যাংক অ্যাপ", correct: true },
+      { text: "ক্যামেরা অ্যাপ", correct: false },
     ],
   },
   {
@@ -236,23 +247,17 @@ const QUIZ = [
     q: "টালিপে বাংলা QR এ কি কি সুবিধাগুলো আছে?",
     multi: true,
     options: [
-      { text: "পেমেন্ট নেয়ার সাথে সাথে টাকা ট্রান্সফার করা যায় NPSB এর মাধ্যমে", correct: true },
       { text: "যেকোন ব্যাংক একাউন্টে, Visa কার্ডে, MFS-এ ট্রান্সফার করা যায়", correct: true },
       { text: "ছুটির দিনেও ট্রান্সফার করা যায়", correct: true },
       { text: "সার্ভিস চার্জ মাত্র ৯ টাকা", correct: true },
-      { text: "QR কোড নিতে ট্রেড লাইসেন্স লাগে না", correct: true },
+      { text: "উপরের একটিও নয়", correct: false },
     ],
   },
 ];
 
 const PROFESSIONS = [
-  { name: "মুদি ব্যবসায়ী", icon: "🛒" },
-  { name: "ফার্মেসি ব্যবসায়ী", icon: "💊" },
-  { name: "হার্ডওয়্যার ব্যবসায়ী", icon: "🔧" },
-  { name: "রেস্তোরাঁ ব্যবসায়ী", icon: "🍽️" },
-  { name: "ডিলার / ডিস্ট্রিবিউটর", icon: "🚚" },
-  { name: "জুতা ব্যবসায়ী", icon: "👟" },
-  { name: "চাকুরি", icon: "💼" },
+  { name: "ব্যবসা", icon: "🏪" },
+  { name: "চাকরি", icon: "💼" },
   { name: "শিক্ষার্থী", icon: "🎓" },
   { name: "অন্যান্য", icon: "🔖" },
 ];
@@ -270,19 +275,15 @@ const state = {
   timerId: null,
 };
 
-/* ===================== STEP COUNTER + PROGRESS ====================== */
-// Map each screen to its position in the 10-step main flow.
+/* ===================== PROGRESS BAR MAPPING ========================= */
 function stepOf(screen) {
   switch (screen) {
     case "intro": return 1;
-    case "mobile": return 2;
-    case "profession": return 3;
-    case "quiz": return 4 + state.quizIndex;     // q1..q5 -> 4..8
-    case "wrong": return 4 + state.quizIndex;
-    case "download": return 9;
-    case "share": return 10;
-    case "final": return 10;
-    default: return null;                         // interstitials / info screens
+    case "quiz": return 2 + state.quizIndex;     // q1..q5 -> 2..6
+    case "share": return 7;
+    case "register": return 8;
+    case "final": return 8;
+    default: return null;                         // steps / list / performance
   }
 }
 
@@ -305,68 +306,96 @@ function show(screen) {
   if (screen === "quiz") renderQuestion();
 }
 
-/* ============================ INTRO / TERMS ========================= */
-function refreshStartGate() { $("#startBtn").disabled = !$("#termsCheck").checked; }
+/* ======================= INTRO (mobile + profession + terms) ======= */
+const MAX_PLAYS = 3;   // a participant can take part up to 3 times
+
+function updateIntroGate() {
+  const okMobile = isValidMobile(normalizeMobile($("#mobileInput").value));
+  const okProf = !!state.profession;
+  const okTerms = $("#termsCheck").checked;
+  $("#startBtn").disabled = !(okMobile && okProf && okTerms);
+}
 
 function startFlow() {
-  show("mobile");
-  setTimeout(() => $("#mobileInput").focus(), 250);
-}
-
-/* =========================== MOBILE ENTRY =========================== */
-function submitMobile() {
   const m = normalizeMobile($("#mobileInput").value);
-  const err = $("#mobileError");
-  if (!isValidMobile(m)) { err.hidden = false; return; }
-  err.hidden = true;
+  if (!isValidMobile(m) || !state.profession || !$("#termsCheck").checked) return;
   state.mobile = m;
-
   const existing = API.getParticipant(m);
-  if (existing && existing.completed) { showRepeat(m); return; }
-  API.register(m, null);
-  show("profession");
+  if (existing && (existing.plays || 0) >= MAX_PLAYS) {
+    toast("আপনি সর্বোচ্চ ৩ বার অংশগ্রহণ করেছেন।");
+    return;
+  }
+  API.register(m, state.profession);
+  show("steps");
 }
 
-/* ===================== REPEAT (already participated) ================ */
-function showRepeat(mobile) {
-  const s = API.stats(mobile);
-  $("#rpLastTime").textContent = fmtDuration(s.lastTimeMs);
-  $("#rpLastDate").textContent = s.lastAt ? "রেকর্ড: " + fmtDateTime(s.lastAt) : "";
-  $("#rpBestTime").textContent = fmtDuration(s.bestTimeMs);
-  $("#rpBestDate").textContent = s.bestAt ? "রেকর্ড: " + fmtDateTime(s.bestAt) : "";
-  $("#rpReferrals").textContent = toBn(s.referredInstalls);
-
-  const reg = $("#rpRegStatus");
-  const dl = $("#rpDownloadBtn");
-  if (s.selfRegistered) {
-    reg.innerHTML = "আপনি টালিখাতা রেজিস্ট্রেশন <b>করেছেন</b>। ✓";
-    dl.hidden = true;
+/* ========================= MY PERFORMANCE ========================== */
+function showPerformance() {
+  const m = normalizeMobile($("#mobileInput").value);
+  if (!isValidMobile(m)) { toast("আগে আপনার সঠিক মোবাইল নম্বর দিন।"); return; }
+  state.mobile = m;
+  const p = API.getParticipant(m);
+  const btn = $("#perfBtn");
+  if (!p || !p.completed) {
+    $("#perfBody").hidden = true;
+    $("#perfEmpty").hidden = false;
+    btn.textContent = "অংশগ্রহণ করুন";
+    btn.disabled = false;
   } else {
-    reg.innerHTML = "আপনি টালিখাতা রেজিস্ট্রেশন <b>করেননি</b>। জিততে হলে ডাউনলোড ও রেজিস্ট্রেশন করুন:";
-    dl.hidden = false;
+    $("#perfBody").hidden = false;
+    $("#perfEmpty").hidden = true;
+    $("#perfBestTime").textContent = fmtDuration(p.bestTimeMs);
+    $("#perfDate").textContent = p.bestAt ? fmtDateTime(p.bestAt) : "—";
+    $("#perfReg").textContent = toBn(p.referredInstalls || 0);
+    $("#perfPlays").textContent = toBn(p.plays || 0);
+    const all = API.ranked("mega");
+    const idx = all.findIndex((x) => x.mobile === m);
+    $("#perfRank").textContent = idx >= 0 ? toBn(idx + 1) : "—";
+    const canPlay = (p.plays || 0) < MAX_PLAYS;
+    btn.textContent = canPlay ? "আবার অংশগ্রহণ করুন" : "সর্বোচ্চ ৩ বার সম্পন্ন";
+    btn.disabled = !canPlay;
   }
-  show("repeat");
+  show("performance");
+}
+function perfParticipate() {
+  const p = API.getParticipant(state.mobile);
+  if (!p || !p.completed) { show("intro"); return; }        // first-timer -> home to participate
+  if ((p.plays || 0) >= MAX_PLAYS) { toast("আপনি সর্বোচ্চ ৩ বার অংশগ্রহণ করেছেন।"); return; }
+  playAgain();
 }
 
 /* ================== leaderboard / winners (tables) ================== */
+function lbRow(p, rank, isMe) {
+  return `<tr class="${isMe ? "lb-me" : ""}">
+    <td>${toBn(rank)}</td><td>${maskMobile(p.mobile)}</td>
+    <td>${toBn(p.referredInstalls || 0)}</td><td>${fmtDuration(p.bestTimeMs)}</td>
+    <td>${toBn(scoreOf(p))}</td></tr>`;
+}
 function renderLeaderboard(scope, elId, emptyMsg) {
   const box = $("#" + elId);
   if (!box) return;
-  const rows = API.leaderboard(scope, 10);
+  const all = API.ranked(scope);
   const head = `<table class="data-table"><thead><tr>
-      <th>ক্রমিক নং</th><th>মোবাইল নম্বর</th><th>টালিখাতা রেজিস্ট্রেশন</th><th>উত্তর দেয়ার সময়</th>
+      <th>ক্রম</th><th>মোবাইল নম্বর</th><th>রেজি.</th><th>সময়</th><th>স্কোর</th>
     </tr></thead><tbody>`;
-  const body = rows.length
-    ? rows.map((p, i) =>
-        `<tr><td>${toBn(i + 1)}</td><td>${maskMobile(p.mobile)}</td><td>${toBn(p.referredInstalls || 0)}</td><td>${fmtDuration(p.bestTimeMs)}</td></tr>`).join("")
-    : `<tr><td colspan="4" class="tbl-empty">${emptyMsg}</td></tr>`;
+  if (!all.length) { box.innerHTML = head + `<tr><td colspan="5" class="tbl-empty">${emptyMsg}</td></tr></tbody></table>`; return; }
+  let body = all.slice(0, 10).map((p, i) => lbRow(p, i + 1, p.mobile === state.mobile)).join("");
+  // if the current participant is outside the top 10, show their rank as an 11th row
+  if (state.mobile) {
+    const idx = all.findIndex((p) => p.mobile === state.mobile);
+    if (idx >= 10) body += `<tr class="lb-sep"><td colspan="5">⋯</td></tr>` + lbRow(all[idx], idx + 1, true);
+  }
   box.innerHTML = head + body + `</tbody></table>`;
 }
 function renderAllLeaderboards() {
-  renderLeaderboard("today", "lbToday", "আজ এখনো কোনো অংশগ্রহণকারী নেই।");
-  renderLeaderboard("week", "lbWeek", "এই সপ্তাহে এখনো কোনো অংশগ্রহণকারী নেই।");
-  renderLeaderboard("all", "lbAll", "এখনো কোনো অংশগ্রহণকারী নেই।");
+  renderLeaderboard("daily", "lbDaily", "আজ এখনো কোনো অংশগ্রহণকারী নেই।");
+  renderLeaderboard("weekly", "lbWeekly", "এই সপ্তাহে এখনো কোনো অংশগ্রহণকারী নেই।");
+  renderLeaderboard("mega", "lbMega", "এখনো কোনো অংশগ্রহণকারী নেই।");
   renderWinners();
+}
+function switchListTab(tab) {
+  $$(".lb-tab").forEach((t) => t.classList.toggle("active", t.dataset.tab === tab));
+  $$(".lb-panel").forEach((p) => (p.hidden = p.dataset.panel !== tab));
 }
 function fmtWinDate(ymd) {
   const [y, m, d] = ymd.split("-").map(Number);
@@ -402,20 +431,7 @@ function selectProfession(btn) {
   $$(".prof-btn").forEach((x) => x.classList.remove("selected"));
   btn.classList.add("selected");
   state.profession = btn.dataset.name;
-  $("#professionNextBtn").disabled = false;
-}
-// pre-select a profession by name (used when a returning participant replays)
-function preselectProfession(name) {
-  state.profession = null;
-  $("#professionNextBtn").disabled = true;
-  $$(".prof-btn").forEach((x) => x.classList.remove("selected"));
-  const btn = $$(".prof-btn").find((b) => b.dataset.name === name);
-  if (btn) selectProfession(btn);
-}
-function professionNext() {
-  if (!state.profession) return;
-  API.register(state.mobile, state.profession);
-  show("qrinfo");   // TallyKhata UI + QR sticker, then the three campaign steps
+  updateIntroGate();
 }
 
 /* =============================== QUIZ =============================== */
@@ -493,8 +509,11 @@ function quizConfirm() {
   answer(ok);
 }
 
+function openWrongPopup() { $("#wrongModal").hidden = false; }
+function closeWrongPopup() { $("#wrongModal").hidden = true; }  // same question, clock keeps running
+
 function answer(correct) {
-  if (!correct) { stopTimer(); show("wrong"); return; }
+  if (!correct) { openWrongPopup(); return; }   // popup only — timer never stops/resets
   if (state.quizIndex < QUIZ.length - 1) {
     state.quizIndex++;
     show("quiz");
@@ -504,9 +523,9 @@ function answer(correct) {
     state.lastQuizMs = Date.now() - state.quizStart;
     API.recordQuizTime(state.mobile, state.lastQuizMs);
     $("#correctTime").textContent = fmtDuration(state.lastQuizMs);
-    // flow: quiz -> download (this screen) -> WhatsApp share -> final
-    $("#dlNextBtn").disabled = true;        // re-locked until the app download is tapped
-    show("download");
+    // flow: quiz -> WhatsApp share -> TallyKhata registration -> final
+    $("#shareNextBtn").disabled = true;     // re-locked until a WhatsApp share
+    show("share");
   }
 }
 
@@ -543,12 +562,12 @@ function shareFromCorrect() {
   doShare();
   const p = API.getParticipant(state.mobile);
   API.update(state.mobile, { shares: (p ? p.shares || 0 : 0) + 1 });
-  // unlock the "জমা দিন" button once the participant has shared on WhatsApp
-  const finalBtn = $("#finalBtn");
-  if (finalBtn) finalBtn.disabled = false;
+  // unlock the "পরবর্তী" button once the participant has shared on WhatsApp
+  const next = $("#shareNextBtn");
+  if (next) next.disabled = false;
 }
 
-/* ============================= DOWNLOAD ============================= */
+/* ===================== REGISTRATION (last step) ==================== */
 function buildDownloadUrl() {
   const p = API.getParticipant(state.mobile);
   const trail = `tk_${CONFIG.campaignId}_${p ? p.code : ""}`;
@@ -556,24 +575,47 @@ function buildDownloadUrl() {
   u.searchParams.set("referrer", trail);
   return u.toString();
 }
+function goToRegister() {
+  $("#finalBtn").disabled = true;
+  $("#regChoice").hidden = false;
+  $("#regDownloadWrap").hidden = true;
+  const s3 = $("#regStep3");
+  s3.classList.remove("done"); s3.classList.add("active");
+  $("#regStep3 .tl-node").textContent = "";
+  show("register");
+}
+function markRegStep3Done() {
+  const s3 = $("#regStep3");
+  s3.classList.remove("active"); s3.classList.add("done");
+  $("#regStep3 .tl-node").textContent = "✓";
+  $("#finalBtn").disabled = false;
+}
+function haveApp() {           // user already has TallyKhata registered
+  $("#regChoice").hidden = true;
+  $("#regDownloadWrap").hidden = true;
+  state.downloaded = true;
+  markRegStep3Done();
+}
+function noApp() {             // reveal the download box; button stays locked until tapped
+  $("#regChoice").hidden = true;
+  $("#regDownloadWrap").hidden = false;
+}
 function onDownloadTap() {
   window.open(buildDownloadUrl(), "_blank");
   state.downloaded = true;
-  // unlock the "পরবর্তী" button once the app download link has been tapped
-  const next = $("#dlNextBtn");
-  if (next) next.disabled = false;
+  markRegStep3Done();          // tick step 3 + unlock "জমা দিন"
 }
 function finish() {
-  API.confirmInstall(state.mobile, state.inviterCode);
+  const p = API.confirmInstall(state.mobile, state.inviterCode);
+  API.update(state.mobile, { plays: ((p && p.plays) || 0) + 1 });
   show("final");
 }
 
 /* ============================ REPLAY ============================== */
 function playAgain() {
-  // returning participant re-runs the same path, with their previous profession pre-selected
-  show("profession");
   const p = API.getParticipant(state.mobile);
-  preselectProfession(p && p.profession);
+  if (p && p.profession) state.profession = p.profession;
+  show("steps");               // profession already known -> straight to the 3 steps
 }
 
 function reshareWhatsapp() { doShare(); }
@@ -582,20 +624,21 @@ function reshareWhatsapp() { doShare(); }
 const ACTIONS = {
   "open-terms": (e) => { e && e.preventDefault(); $("#termsModal").hidden = false; },
   "close-terms": () => { $("#termsModal").hidden = true; },
+  "close-wrong": closeWrongPopup,
   "start": startFlow,
-  "submit-mobile": submitMobile,
   "play-again": playAgain,
-  "profession-next": professionNext,
   "quiz-confirm": quizConfirm,
-  "retry-quiz": retryQuiz,
-  "qrinfo-next": () => show("steps"),
   "steps-next": startQuiz,
-  "download-next": () => { $("#finalBtn").disabled = true; show("share"); },
+  "share-next": goToRegister,
+  "have-app": haveApp,
+  "no-app": noApp,
   "finish": finish,
   "reshare-whatsapp": reshareWhatsapp,
   "goto-home": () => show("intro"),
-  "goto-list": () => { renderAllLeaderboards(); show("list"); },
+  "goto-list": () => { renderAllLeaderboards(); switchListTab("daily"); show("list"); },
   "list-back": () => show("intro"),
+  "goto-performance": showPerformance,
+  "perf-participate": perfParticipate,
 };
 
 /* ============================== INIT =============================== */
@@ -612,9 +655,10 @@ function init() {
   });
 
   $$("[data-share]").forEach((el) => el.addEventListener("click", shareFromCorrect));
+  $$(".lb-tab").forEach((el) => el.addEventListener("click", () => switchListTab(el.dataset.tab)));
 
-  $("#termsCheck").addEventListener("change", refreshStartGate);
-  $("#mobileInput").addEventListener("keydown", (e) => { if (e.key === "Enter") submitMobile(); });
+  $("#termsCheck").addEventListener("change", updateIntroGate);
+  $("#mobileInput").addEventListener("input", updateIntroGate);
 
   show("intro");
 }

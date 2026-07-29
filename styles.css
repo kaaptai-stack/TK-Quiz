@@ -599,8 +599,56 @@ h2.hl { font-size: 24px; margin: 6px 0 16px; }
   50%      { box-shadow: 0 0 0 8px rgba(216,31,38,0); opacity: .55; }
 }
 
+/* intro: 4-box profession grid + spacing */
+.field-label.mt12 { margin-top: 14px; }
+.profession-grid.grid4 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.intro .terms-check { margin-top: 14px; }
+
+/* leaderboard tabs */
+.lb-tabs { display: flex; gap: 6px; margin: 4px 0 12px; }
+.lb-tab {
+  flex: 1; padding: 9px 4px; border: 1px solid var(--tk-red); background: #fff;
+  color: var(--tk-red); border-radius: 30px; font-family: inherit; font-size: 13px;
+  font-weight: 700; cursor: pointer;
+}
+.lb-tab.active { background: var(--tk-red); color: #fff; }
+.lb-note { font-size: 12.5px; color: var(--tk-muted); margin: 0 0 8px; line-height: 1.5; }
+.data-table tr.lb-me td { background: #FFF1B8; font-weight: 700; }
+.data-table tr.lb-sep td { text-align: center; color: var(--tk-muted); padding: 2px; letter-spacing: 3px; }
+
+/* has-app choice + outline button */
+.choice-row { display: flex; gap: 10px; margin: 6px 0 4px; }
+.btn-outline {
+  background: #fff; color: var(--tk-red); border: 2px solid var(--tk-red);
+  box-shadow: none; margin: 6px 0;
+}
+.stat-sub-val { font-size: 13px; color: var(--tk-muted); }
+
+/* modal close X + wrong popup */
+.modal-box { position: relative; }
+.modal-x {
+  position: absolute; top: 8px; right: 10px; width: 34px; height: 34px;
+  border: none; background: #f0e2e5; color: var(--tk-ink); border-radius: 50%;
+  font-size: 16px; font-weight: 700; cursor: pointer; line-height: 1;
+}
+.wrong-box { text-align: center; }
+.wrong-box .big-icon { margin: 6px auto 8px; }
+.wrong-box h3 { color: var(--tk-red); }
+
+/* animated big congratulations */
+.congrats-big {
+  font-size: 46px; font-weight: 700; color: var(--tk-red); margin: 8px 0 6px;
+  text-shadow: 2px 2px 0 var(--tk-gold);
+  animation: pop-in .6s cubic-bezier(.2,1.3,.4,1) both, congrats-bounce 1.6s ease-in-out .6s infinite;
+}
+@keyframes pop-in { 0% { transform: scale(.2); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes congrats-bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+.confetti { font-size: 54px; animation: confetti-spin 1.2s ease-in-out infinite; }
+@keyframes confetti-spin { 0%,100% { transform: rotate(-12deg) scale(1); } 50% { transform: rotate(12deg) scale(1.15); } }
+
 @media (max-width: 360px) {
   h1.hl { font-size: 23px; }
   .prize-amount { font-size: 54px; }
   .quiz-question { font-size: 22px; }
+  .congrats-big { font-size: 38px; }
 }
