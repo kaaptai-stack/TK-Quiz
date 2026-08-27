@@ -215,10 +215,6 @@ function scoreOf(p) {
    ===================================================================== */
 const QUIZ = [
   {
-    q: "টালিখাতা অ্যাপে কিসের হিসাব রাখা যায়?",
-    options: ["ব্যবসার বাকির হিসাব", "নিজের হিসাব"],
-  },
-  {
     q: "টালিখাতা অ্যাপে বাকির হিসাব রাখলে কি কি সুবিধা পাওয়া যায়?",
     multi: true,
     options: [
@@ -240,16 +236,12 @@ const QUIZ = [
     ],
   },
   {
-    q: "টালিপে বাংলা QR কিভাবে পাওয়া যায়?",
-    options: ["টালিখাতা অ্যাপ থেকে আবেদন করার পর সবচেয়ে দ্রুত পাওয়া যায়।", "অফিসে গিয়ে আবেদন করে ৭ দিন পর"],
-  },
-  {
     q: "টালিপে বাংলা QR এ কি কি সুবিধাগুলো আছে?",
     multi: true,
     options: [
-      { text: "যেকোন ব্যাংক একাউন্টে, Visa কার্ডে, MFS-এ ট্রান্সফার করা যায়", correct: true },
-      { text: "ছুটির দিনেও ট্রান্সফার করা যায়", correct: true },
-      { text: "সার্ভিস চার্জ মাত্র ৯ টাকা", correct: true },
+      { text: "টালিখাতা অ্যাপ থেকে আবেদন করে সবচেয়ে দ্রুত পাওয়া যায়।", correct: true },
+      { text: "সব ব্যাংক একাউন্ট, বিকাশ, নগদ, রকেটে ইনস্ট্যান্ট ট্রান্সফার করা যায়।", correct: true },
+      { text: "পেমেন্ট পেলে সাউন্ড নোটিফিকেশন পাওয়া যায়।", correct: true },
       { text: "এখানের একটিও সঠিক নয়।", correct: false },
     ],
   },
@@ -307,8 +299,6 @@ function show(screen) {
 }
 
 /* ======================= INTRO (mobile + profession + terms) ======= */
-const MAX_PLAYS = 3;   // a participant can take part up to 3 times
-
 function updateIntroGate() {
   const okMobile = isValidMobile(normalizeMobile($("#mobileInput").value));
   const okProf = !!state.profession;
@@ -321,47 +311,15 @@ function startFlow() {
   if (!isValidMobile(m) || !state.profession || !$("#termsCheck").checked) return;
   state.mobile = m;
   const existing = API.getParticipant(m);
-  if (existing && (existing.plays || 0) >= MAX_PLAYS) {
-    toast("আপনি সর্বোচ্চ ৩ বার অংশগ্রহণ করেছেন।");
-    return;
-  }
   API.register(m, state.profession);
-  show("steps");
-}
-
-/* ========================= MY PERFORMANCE ========================== */
-function showPerformance() {
-  const m = normalizeMobile($("#mobileInput").value);
-  if (!isValidMobile(m)) { toast("পারফরমেন্স দেখতে আপনার মোবাইল নম্বর লিখুন।"); return; }
-  state.mobile = m;
-  const p = API.getParticipant(m);
-  const btn = $("#perfBtn");
-  if (!p || !p.completed) {
-    $("#perfBody").hidden = true;
-    $("#perfEmpty").hidden = false;
-    btn.textContent = "অংশগ্রহণ করুন";
-    btn.disabled = false;
+  if (existing && existing.completed) {
+    // repeat participant -> straight to the WhatsApp sharing step
+    $("#correctTime").textContent = fmtDuration(existing.bestTimeMs);
+    $("#shareNextBtn").disabled = true;
+    show("share");
   } else {
-    $("#perfBody").hidden = false;
-    $("#perfEmpty").hidden = true;
-    $("#perfBestTime").textContent = fmtDuration(p.bestTimeMs);
-    $("#perfDate").textContent = p.bestAt ? fmtDateTime(p.bestAt) : "—";
-    $("#perfReg").textContent = toBn(p.referredInstalls || 0);
-    $("#perfPlays").textContent = toBn(p.plays || 0);
-    const all = API.ranked("mega");
-    const idx = all.findIndex((x) => x.mobile === m);
-    $("#perfRank").textContent = idx >= 0 ? toBn(idx + 1) : "—";
-    const canPlay = (p.plays || 0) < MAX_PLAYS;
-    btn.textContent = canPlay ? "আবার অংশগ্রহণ করুন" : "সর্বোচ্চ ৩ বার সম্পন্ন";
-    btn.disabled = !canPlay;
+    show("steps");
   }
-  show("performance");
-}
-function perfParticipate() {
-  const p = API.getParticipant(state.mobile);
-  if (!p || !p.completed) { show("intro"); return; }        // first-timer -> home to participate
-  if ((p.plays || 0) >= MAX_PLAYS) { toast("আপনি সর্বোচ্চ ৩ বার অংশগ্রহণ করেছেন।"); return; }
-  playAgain();
 }
 
 /* ================== leaderboard / winners (tables) ================== */
@@ -549,8 +507,8 @@ function shareUrl() {
   return `${portalBase()}?ref=${code}`;
 }
 function shareMessage() {
-  return `জিতে নিন ক্যাশ ${CONFIG.prizeBn} টাকা পুরস্কার!\n` +
-         `টালিখাতা রেফার করুন ন্যূনতম ১০ জনকে। এ সুযোগ সীমিত সময়ের জন্য।\n` +
+  return `সহজ তিনটি প্রশ্নের উত্তর দিন আর রেফার করুন টালিখাতা অ্যাপ পরিচিতজনকে।\n` +
+         `আর জিতে নিন সর্বোচ্চ ১০,০০০ টাকা ক্যাশ পুরস্কার!* এ সুযোগ সীমিত সময়ের জন্য। জলদি করুন।\n` +
          shareUrl();
 }
 
@@ -613,13 +571,6 @@ function finish() {
   show("final");
 }
 
-/* ============================ REPLAY ============================== */
-function playAgain() {
-  const p = API.getParticipant(state.mobile);
-  if (p && p.profession) state.profession = p.profession;
-  show("steps");               // profession already known -> straight to the 3 steps
-}
-
 function reshareWhatsapp() { doShare(); }
 
 /* ============================= ACTIONS ============================= */
@@ -628,7 +579,6 @@ const ACTIONS = {
   "close-terms": () => { $("#termsModal").hidden = true; },
   "close-wrong": closeWrongPopup,
   "start": startFlow,
-  "play-again": playAgain,
   "quiz-confirm": quizConfirm,
   "steps-next": startQuiz,
   "share-next": goToRegister,
@@ -639,8 +589,6 @@ const ACTIONS = {
   "goto-home": () => show("intro"),
   "goto-list": () => { renderAllLeaderboards(); switchListTab("daily"); show("list"); },
   "list-back": () => show("intro"),
-  "goto-performance": showPerformance,
-  "perf-participate": perfParticipate,
 };
 
 /* ============================== INIT =============================== */

@@ -600,8 +600,17 @@ h2.hl { font-size: 24px; margin: 6px 0 16px; }
 }
 
 /* intro: grouped card + compact link chips */
-.intro { padding-top: 14px; }
-.intro .hero-creative { width: auto; max-width: 100%; max-height: 122px; margin: 0 auto 30px; }
+.intro { padding-top: 0; }
+/* full-bleed 2:1 banner (edge to edge, cancels the screen-body side padding) */
+.intro .hero-creative {
+  width: calc(100% + 44px);
+  max-width: none;
+  margin: 0 -22px 26px;
+  aspect-ratio: 2 / 1;
+  height: auto;
+  object-fit: cover;
+  border-radius: 0;
+}
 .intro-card {
   width: 100%;
   background: transparent;

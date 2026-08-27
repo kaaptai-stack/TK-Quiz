@@ -25,7 +25,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=9" />
+  <link rel="stylesheet" href="styles.css?v=10" />
 </head>
 <body>
   <div class="app" id="app">
@@ -51,11 +51,6 @@
           </label>
 
           <button class="btn btn-primary" id="startBtn" data-action="start" disabled>আমি আগ্রহী</button>
-        </div>
-
-        <div class="intro-links">
-          <button class="chip-link" data-action="goto-list">🏅 শীর্ষ তালিকা ও বিজয়ী</button>
-          <button class="chip-link" data-action="goto-performance">📊 আমার পারফরমেন্স</button>
         </div>
       </div>
     </section>
@@ -92,26 +87,6 @@
       </div>
     </section>
 
-    <!-- ================= MY PERFORMANCE ================= -->
-    <section class="screen" data-screen="performance">
-      <div class="screen-body center">
-        <h2 class="hl center-text">আমার পারফরমেন্স</h2>
-        <p class="lead" id="perfEmpty" hidden>এই নম্বরে এখনো কোনো অংশগ্রহণ পাওয়া যায়নি।</p>
-        <div id="perfBody" hidden style="width:100%">
-          <div class="stat-card">
-            <div class="stat-row"><span class="stat-label">সেরা উত্তর দেয়ার সময়</span><span class="stat-value best" id="perfBestTime">—</span></div>
-            <div class="stat-row"><span class="stat-label">অংশগ্রহণের তারিখ</span><span class="stat-sub-val" id="perfDate">—</span></div>
-            <hr/>
-            <div class="stat-row"><span class="stat-label">টালিখাতা রেজিস্ট্রেশন</span><span class="stat-value" id="perfReg">০</span></div>
-            <div class="stat-row"><span class="stat-label">পজিশন র‍্যাঙ্ক</span><span class="stat-value" id="perfRank">—</span></div>
-            <div class="stat-row"><span class="stat-label">অংশগ্রহণ সংখ্যা</span><span class="stat-value" id="perfPlays">০</span> <span class="stat-sub-val">/ ৩</span></div>
-          </div>
-        </div>
-        <button class="btn btn-primary btn-narrow mt-auto" id="perfBtn" data-action="perf-participate">অংশগ্রহণ করুন</button>
-        <button class="btn-text" data-action="goto-home">← ফিরে যান</button>
-      </div>
-    </section>
-
     <!-- ================= THREE STEPS (timeline) ================= -->
     <section class="screen" data-screen="steps">
       <div class="screen-body center">
@@ -120,7 +95,7 @@
         <div class="timeline">
           <div class="tl-item active">
             <span class="tl-node"></span>
-            <span class="tl-label">টালিখাতা ও টালিপে সম্পর্কিত ৫টি প্রশ্ন।</span>
+            <span class="tl-label">টালিখাতা ও টালিপে সম্পর্কিত ৩টি প্রশ্ন।</span>
           </div>
           <div class="tl-item">
             <span class="tl-node"></span>
@@ -131,8 +106,6 @@
             <span class="tl-label">টালিখাতা রেজিস্ট্রেশন করুন।</span>
           </div>
         </div>
-
-        <p class="win-note">প্রতিদিন সবচেয়ে দ্রুত সঠিক উত্তরদাতা ও রেফার করে সর্বোচ্চ টালিখাতা অ্যাপ রেজিস্ট্রেশন করে দেয়া অংশগ্রহণকারীই হবেন বিজয়ী।</p>
 
         <button class="btn btn-primary btn-narrow mt-auto" data-action="steps-next">শুরু করুন</button>
       </div>
@@ -163,7 +136,7 @@
         <div class="timeline three-step">
           <div class="tl-item done">
             <span class="tl-node">✓</span>
-            <span class="tl-label">টালিখাতা ও টালিপে সম্পর্কিত ৫টি প্রশ্ন।</span>
+            <span class="tl-label">টালিখাতা ও টালিপে সম্পর্কিত ৩টি প্রশ্ন।</span>
           </div>
           <div class="tl-item active">
             <span class="tl-node"></span>
@@ -197,7 +170,7 @@
         <div class="timeline three-step">
           <div class="tl-item done">
             <span class="tl-node">✓</span>
-            <span class="tl-label">টালিখাতা ও টালিপে সম্পর্কিত ৫টি প্রশ্ন।</span>
+            <span class="tl-label">টালিখাতা ও টালিপে সম্পর্কিত ৩টি প্রশ্ন।</span>
           </div>
           <div class="tl-item done">
             <span class="tl-node">✓</span>
@@ -236,7 +209,7 @@
         <img class="hero-logo" src="assets/tk-logo-vertical.png" alt="টালিখাতা" />
         <h1 class="congrats-big">অভিনন্দন!</h1>
         <p class="lead">আপনি সফলভাবে সকল ধাপ সম্পন্ন করেছেন।</p>
-        <p class="lead">জেতার সম্ভাবনা বাড়াতে আরও বেশি বন্ধুকে WhatsApp-এ শেয়ার করুন।</p>
+        <p class="lead">যত বেশি পরিচিতজনকে শেয়ার করবেন, আপনার জেতার সম্ভাবনা তত বাড়বে।</p>
         <button class="btn btn-wa btn-narrow" data-action="reshare-whatsapp">WhatsApp-এ আবার শেয়ার করুন</button>
         <button class="btn-text" data-action="goto-home">হোমে ফিরে যান</button>
       </div>
@@ -281,6 +254,6 @@
   <!-- toast -->
   <div class="toast" id="toast" hidden></div>
 
-  <script src="app.js?v=9"></script>
+  <script src="app.js?v=10"></script>
 </body>
 </html>
