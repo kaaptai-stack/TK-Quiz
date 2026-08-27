@@ -25,7 +25,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=10" />
+  <link rel="stylesheet" href="styles.css?v=11" />
 </head>
 <body>
   <div class="app" id="app">
@@ -129,9 +129,15 @@
     <!-- ================= STEP 2: WHATSAPP SHARE ================= -->
     <section class="screen" data-screen="share">
       <div class="screen-body center">
-        <div class="big-icon ok">✓</div>
-        <p class="lead strong">সবগুলো সঠিক উত্তর সম্পন্ন!</p>
-        <p class="lead">আপনার সময়: <b id="correctTime">—</b></p>
+        <div id="shareHeadFirst">
+          <div class="big-icon ok">✓</div>
+          <p class="lead strong">সবগুলো সঠিক উত্তর সম্পন্ন!</p>
+          <p class="lead">আপনার সময়: <b id="correctTime">—</b></p>
+        </div>
+        <div id="shareHeadRepeat" hidden>
+          <p class="lead strong">আপনি ইতিমধ্যে প্রথম ধাপ সম্পন্ন করেছেন।</p>
+          <p class="lead">সাপ্তাহিক ও মেগা পুরষ্কার জিততে যত বেশি ব্যবসায়ী বন্ধুকে ও গ্রুপে শেয়ার করুন।</p>
+        </div>
 
         <div class="timeline three-step">
           <div class="tl-item done">
@@ -147,8 +153,6 @@
             <span class="tl-label">টালিখাতা রেজিস্ট্রেশন করুন।</span>
           </div>
         </div>
-
-        <p class="lead">রেফার করে টালিখাতা অ্যাপ রেজিস্ট্রেশন করাতে WhatsApp-এর মাধ্যমে আপনার যত বেশি সম্ভব ব্যবসায়ী বন্ধুকে ও গ্রুপে শেয়ার করুন।</p>
 
         <div class="share-icons">
           <button class="share-icon big" data-share="whatsapp" aria-label="WhatsApp">
@@ -254,6 +258,6 @@
   <!-- toast -->
   <div class="toast" id="toast" hidden></div>
 
-  <script src="app.js?v=10"></script>
+  <script src="app.js?v=11"></script>
 </body>
 </html>

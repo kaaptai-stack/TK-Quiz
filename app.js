@@ -314,7 +314,8 @@ function startFlow() {
   API.register(m, state.profession);
   if (existing && existing.completed) {
     // repeat participant -> straight to the WhatsApp sharing step
-    $("#correctTime").textContent = fmtDuration(existing.bestTimeMs);
+    $("#shareHeadFirst").hidden = true;
+    $("#shareHeadRepeat").hidden = false;
     $("#shareNextBtn").disabled = true;
     show("share");
   } else {
@@ -484,6 +485,8 @@ function answer(correct) {
     API.recordQuizTime(state.mobile, state.lastQuizMs);
     $("#correctTime").textContent = fmtDuration(state.lastQuizMs);
     // flow: quiz -> WhatsApp share -> TallyKhata registration -> final
+    $("#shareHeadFirst").hidden = false;    // first-timer header (with time)
+    $("#shareHeadRepeat").hidden = true;
     $("#shareNextBtn").disabled = true;     // re-locked until a WhatsApp share
     show("share");
   }
